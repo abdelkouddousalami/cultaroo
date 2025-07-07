@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Simple Host Application Test</title>
+    @include('partials.favicon')
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>

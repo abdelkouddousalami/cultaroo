@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Culturoo - Experience Authentic Moroccan Culture</title>
+    @include('partials.favicon')
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     @vite('resources/css/app.css')
     <style>
@@ -72,7 +73,7 @@
                     <a href="#experiences" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Experiences</a>
                     <a href="{{ route('listings.index') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Host Families</a>
                     <a href="#about" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">About</a>
-                    <a href="#contact" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Contact</a>
+                    <a href="{{ route('contact') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Contact</a>
                 </div>
                 <div class="flex items-center space-x-4">
                     @auth
@@ -108,7 +109,7 @@
                     <a href="#experiences" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Experiences</a>
                     <a href="#families" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Host Families</a>
                     <a href="#about" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">About</a>
-                    <a href="#contact" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Contact</a>
+                    <a href="{{ route('contact') }}" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Contact</a>
                     <div class="border-t border-gray-200 pt-3 mt-3">
                         @auth
                             <div class="px-3 py-2">

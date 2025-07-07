@@ -5,10 +5,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HostingController;
+use App\Http\Controllers\ContactController;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
+
+Route::get('/contact', function () {
+    return view('contact');
+})->name('contact');
+
+Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 
 Route::get('/test-host-app', function () {
     return view('test-host-application');
