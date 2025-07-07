@@ -49,7 +49,7 @@ class HostingController extends Controller
         $user = Auth::user();
         
         if (!$user->isHost()) {
-            return redirect()->route('profile')->with('error', 'Access denied. You need to be a host to create announcements.');
+            return redirect()->route('profile')->with('error', 'Access denied. You need to have a "Host" role to create announcements. Please submit a host application or register as a host.');
         }
 
         return view('host.create-announcement');
@@ -65,11 +65,19 @@ class HostingController extends Controller
         if (!$user->isHost()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Access denied.'
+                'message' => 'Access denied. You need to have a "Host" role to create announcements. Please submit a host application or register as a host.'
             ], 403);
         }
 
-        $validator = Validator::make($request->all(), [
+        // Clean the request data - remove empty house rules
+        $requestData = $request->all();
+        if (isset($requestData['house_rules'])) {
+            $requestData['house_rules'] = array_filter($requestData['house_rules'], function($rule) {
+                return !empty(trim($rule));
+            });
+        }
+
+        $validator = Validator::make($requestData, [
             'title' => 'required|string|max:255',
             'description' => 'required|string|min:50',
             'price_per_night' => 'required|numeric|min:1',
@@ -82,7 +90,7 @@ class HostingController extends Controller
             'amenities' => 'required|array|min:1',
             'amenities.*' => 'string|max:100',
             'house_rules' => 'nullable|array',
-            'house_rules.*' => 'string|max:200',
+            'house_rules.*' => 'nullable|string|max:200',
             'available_from' => 'nullable|date|after_or_equal:today',
             'available_until' => 'nullable|date|after:available_from',
             'special_notes' => 'nullable|string|max:1000',
@@ -108,20 +116,20 @@ class HostingController extends Controller
 
             $announcement = HostingAnnouncement::create([
                 'host_id' => $user->id,
-                'title' => $request->title,
-                'description' => $request->description,
-                'price_per_night' => $request->price_per_night,
-                'room_type' => $request->room_type,
-                'max_guests' => $request->max_guests,
-                'city' => $request->city,
-                'address' => $request->address,
-                'languages' => $request->languages,
-                'amenities' => $request->amenities,
-                'house_rules' => $request->house_rules ?? [],
+                'title' => $requestData['title'],
+                'description' => $requestData['description'],
+                'price_per_night' => $requestData['price_per_night'],
+                'room_type' => $requestData['room_type'],
+                'max_guests' => $requestData['max_guests'],
+                'city' => $requestData['city'],
+                'address' => $requestData['address'],
+                'languages' => $requestData['languages'],
+                'amenities' => $requestData['amenities'],
+                'house_rules' => $requestData['house_rules'] ?? [],
                 'images' => $images,
-                'available_from' => $request->available_from,
-                'available_until' => $request->available_until,
-                'special_notes' => $request->special_notes,
+                'available_from' => $requestData['available_from'] ?? null,
+                'available_until' => $requestData['available_until'] ?? null,
+                'special_notes' => $requestData['special_notes'] ?? null,
                 'is_active' => true,
             ]);
 

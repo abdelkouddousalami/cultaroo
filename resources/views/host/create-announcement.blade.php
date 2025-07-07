@@ -539,6 +539,17 @@
             try {
                 const formData = new FormData(this);
                 
+                // Remove empty house rules
+                const houseRulesInputs = this.querySelectorAll('input[name="house_rules[]"]');
+                // First remove all house_rules from formData
+                formData.delete('house_rules[]');
+                // Then add only non-empty house rules
+                houseRulesInputs.forEach((input, index) => {
+                    if (input.value.trim() !== '') {
+                        formData.append('house_rules[]', input.value.trim());
+                    }
+                });
+                
                 // Add selected images to form data
                 selectedImages.forEach((file, index) => {
                     formData.append(`images[${index}]`, file);
