@@ -191,7 +191,6 @@
                         <img src="{{ asset('images/logos/logo.png') }}" alt="Culturoo" class="h-12 w-auto transition-transform duration-300 group-hover:scale-105 brand-logo">
                         <div class="hidden sm:block">
                             <h1 class="text-xl font-bold bg-gradient-to-r from-orange-600 to-orange-800 bg-clip-text text-transparent">Culturoo</h1>
-                            <p class="text-xs text-gray-500">Cultural Exchange</p>
                         </div>
                     </a>
                 </div>
@@ -200,13 +199,6 @@
                     <a href="{{ route('listings.index') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Host Families</a>
                     <a href="{{ route('profile') }}" class="text-orange-600 font-medium transition-colors duration-300">My Profile</a>
                     
-                    <!-- Notifications -->
-                    <button class="relative text-gray-700 hover:text-orange-600 transition-colors duration-300" onclick="toggleNotifications()">
-                        Notifications
-                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
-                    </button>
-                    
-                    <!-- Host Dashboard - Only visible if User is Host -->
                     @if(Auth::user()->isHost())
                         <a href="{{ route('host.dashboard') }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium">
                             Host Dashboard
