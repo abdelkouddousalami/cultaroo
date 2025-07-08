@@ -370,8 +370,7 @@
         <div class="bg-white h-full w-4/5 max-w-sm py-6 px-4 overflow-y-auto shadow-xl">
             <div class="flex items-center justify-between mb-6 border-b border-gray-200 pb-3">
                 <div class="flex items-center space-x-3">
-                    <img src="{{ asset('images/logos/logo.png') }}" alt="Culturoo" class="h-10 w-auto">
-                    <h3 class="text-lg font-bold bg-gradient-to-r from-orange-600 to-orange-800 bg-clip-text text-transparent">Culturoo</h3>
+                    <img src="{{ asset('images/logos/logo.png') }}" alt="Culturoo" class="h-28 w-auto">
                 </div>
                 <button onclick="toggleMobileMenu()" class="p-2 rounded-lg text-gray-600 hover:bg-gray-100">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
