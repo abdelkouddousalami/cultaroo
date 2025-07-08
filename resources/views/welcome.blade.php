@@ -57,19 +57,50 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(139, 69, 19, 0.3);
         }
+        .dropdown-item {
+            display: block;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            color: #374151;
+            transition: all 0.2s ease;
+            width: 100%;
+            text-align: left;
+            border: none;
+            background: none;
+            cursor: pointer;
+        }
+        .dropdown-item:hover {
+            background-color: #fef3c7;
+            color: #ea580c;
+        }
+        
+        /* Navbar animations */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        #user-menu:not(.hidden) {
+            animation: slideDown 0.2s ease-out;
+        }
     </style>
 </head>
 <body class="font-['Inter'] text-gray-800 bg-orange-50">
     <!-- Navigation -->
-    <nav class="fixed top-0 w-full bg-white/95 backdrop-blur-sm shadow-lg z-50 transition-all duration-300">
+  <nav class="fixed top-0 w-full bg-white/95 backdrop-blur-sm shadow-lg z-50 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
                 <div class="flex items-center">
                     <img src="{{ asset('images/logos/logo.png') }}" alt="Culturoo" class="h-28 w-auto">
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="#home" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Home</a>
-                    <a href="{{ route('listings.index') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Browse Stays</a>
+                    <a href="{{ route('welcome') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Home</a>
                     <a href="#experiences" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Experiences</a>
                     <a href="{{ route('listings.index') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Host Families</a>
                     <a href="#about" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">About</a>
@@ -77,21 +108,68 @@
                 </div>
                 <div class="flex items-center space-x-4">
                     @auth
-                        <span class="text-gray-700">Welcome, <span class="font-medium text-orange-600">{{ Auth::user()->first_name }}</span></span>
-                        <span class="bg-{{ Auth::user()->role_color }}-100 text-{{ Auth::user()->role_color }}-800 px-2 py-1 rounded-full text-xs font-medium">
-                            {{ Auth::user()->role_display }}
-                        </span>
-                        <a href="{{ route('profile') }}" class="text-orange-600 hover:text-orange-700 font-medium transition-colors duration-300">Profile</a>
-                        <form method="POST" action="{{ route('auth.logout') }}" class="inline">
-                            @csrf
-                            <button type="submit" class="btn-moroccan text-white px-6 py-3 rounded-full font-medium">Logout</button>
-                        </form>
+                    <!-- User Profile Dropdown -->
+                    <div class="relative">
+                        <button onclick="toggleUserMenu()" class="flex items-center space-x-2 text-gray-700 hover:text-orange-600 transition-colors duration-300 p-2 rounded-lg hover:bg-orange-50">
+                            <div class="hidden sm:block text-right mr-2">
+                                <p class="text-sm font-medium text-gray-900">{{ Auth::user()->first_name ?? Auth::user()->name }}</p>
+                                <span class="text-xs bg-{{ Auth::user()->role_color }}-100 text-{{ Auth::user()->role_color }}-800 px-2 py-1 rounded-full font-medium">
+                                    {{ Auth::user()->role_display }}
+                                </span>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-sm font-bold">
+                                @if(Auth::user()->profile_picture)
+                                    <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" alt="Profile" class="w-10 h-10 rounded-full object-cover">
+                                @else
+                                    {{ strtoupper(substr(Auth::user()->first_name ?? Auth::user()->name, 0, 1)) }}
+                                @endif
+                            </div>
+                            <svg class="w-5 h-5 transform transition-transform duration-200" id="menu-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        
+                        <!-- Dropdown Content -->
+                        <div id="user-menu" class="absolute right-0 mt-2 w-[250px] bg-white rounded-xl shadow-2xl border-2 border-orange-200 py-3 z-[99999] hidden" style="box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+                            <!-- User Info Section -->
+                            <div class="px-4 py-3 border-b border-gray-200">
+                                <p class="font-medium text-gray-900 text-base">{{ Auth::user()->first_name ?? Auth::user()->name }} {{ Auth::user()->last_name }}</p>
+                                <p class="text-sm text-gray-500 mt-1">{{ Auth::user()->email }}</p>
+                                <div class="mt-2">
+                                    <span class="text-sm bg-{{ Auth::user()->role_color ?? 'orange' }}-100 text-{{ Auth::user()->role_color ?? 'orange' }}-800 px-3 py-1 rounded-full font-medium">
+                                        {{ Auth::user()->role_display }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Dropdown Actions -->
+                            <div class="py-2">
+                                <!-- Profile Link -->
+                                <a href="{{ route('profile') }}" class="dropdown-item font-medium text-base py-3">
+                                    My Profile
+                                </a>
+                            </div>
+
+                            <!-- Logout -->
+                            <div class="border-t border-gray-200 pt-2">
+                                <form method="POST" action="{{ route('auth.logout') }}" class="w-full">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item text-red-600 hover:bg-red-50 w-full text-left font-medium text-base py-3">
+                                        Logout
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                     @else
+                    <!-- Hide Sign In and Join Now buttons on mobile -->
+                    <div class="hidden md:flex items-center space-x-4">
                         <a href="{{ route('auth') }}" class="text-orange-600 hover:text-orange-700 font-medium transition-colors duration-300">Sign In</a>
                         <a href="{{ route('auth') }}" class="btn-moroccan text-white px-6 py-3 rounded-full font-medium">Join Now</a>
+                    </div>
                     @endauth
                 </div>
-                
+
                 <!-- Mobile menu button -->
                 <div class="md:hidden">
                     <button class="text-gray-700 hover:text-orange-600 focus:outline-none focus:text-orange-600" onclick="toggleMobileMenu()">
@@ -101,36 +179,39 @@
                     </button>
                 </div>
             </div>
-            
+
             <!-- Mobile menu -->
             <div id="mobile-menu" class="hidden md:hidden">
                 <div class="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200">
-                    <a href="#home" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Home</a>
+                    <a href="{{ route('welcome') }}" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Home</a>
                     <a href="#experiences" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Experiences</a>
-                    <a href="#families" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Host Families</a>
+                    <a href="{{ route('listings.index') }}" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Host Families</a>
                     <a href="#about" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">About</a>
                     <a href="{{ route('contact') }}" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Contact</a>
                     <div class="border-t border-gray-200 pt-3 mt-3">
                         @auth
-                            <div class="px-3 py-2">
-                                <p class="text-sm text-gray-600">Welcome, <span class="font-medium text-orange-600">{{ Auth::user()->first_name }}</span></p>
-                                <span class="inline-block bg-{{ Auth::user()->role_color }}-100 text-{{ Auth::user()->role_color }}-800 px-2 py-1 rounded-full text-xs font-medium mt-1">
-                                    {{ Auth::user()->role_display }}
-                                </span>
-                            </div>
-                            <a href="{{ route('profile') }}" class="block px-3 py-2 text-orange-600 font-medium">Profile</a>
-                            <form method="POST" action="{{ route('auth.logout') }}" class="px-3 mt-2">
-                                @csrf
-                                <button type="submit" class="w-full text-center bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-full font-medium">Logout</button>
-                            </form>
+                        <!-- User Info -->
+                        <div class="mb-4 p-3 bg-white rounded-lg border border-orange-100">
+                            <p class="font-medium text-gray-900 text-lg">{{ Auth::user()->first_name ?? Auth::user()->name }} {{ Auth::user()->last_name }}</p>
+                            <p class="text-sm text-gray-500 mb-2">{{ Auth::user()->email }}</p>
+                            <span class="text-sm bg-{{ Auth::user()->role_color ?? 'orange' }}-100 text-{{ Auth::user()->role_color ?? 'orange' }}-800 px-3 py-1 rounded-full font-medium">
+                                {{ Auth::user()->role_display }}
+                            </span>
+                        </div>
+                        
+                        <a href="{{ route('profile') }}" class="block px-3 py-2 text-orange-600 font-medium">My Profile</a>
+                        <form method="POST" action="{{ route('auth.logout') }}" class="px-3 mt-2">
+                            @csrf
+                            <button type="submit" class="w-full text-center bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-full font-medium">Logout</button>
+                        </form>
                         @else
-                            <a href="{{ route('auth') }}" class="block px-3 py-2 text-orange-600 font-medium">Sign In</a>
-                            <a href="{{ route('auth') }}" class="block mx-3 mt-2 text-center bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-full font-medium">Join Now</a>
+                        <a href="{{ route('auth') }}" class="block px-3 py-2 text-orange-600 font-medium">Sign In</a>
+                        <a href="{{ route('auth') }}" class="block mx-3 mt-2 text-center bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-full font-medium">Join Now</a>
                         @endauth
                     </div>
                 </div>
             </div>
-            </div>
+        </div>
         </div>
     </nav>
 
@@ -228,7 +309,7 @@
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <div class="bg-white rounded-2xl p-8 shadow-lg card-hover">
                     <div class="flex items-center mb-6">
-                        <img src="https://images.unsplash.com/photo-1494790108755-2616b612b55c?w=60&h=60&fit=crop&crop=face" alt="Sarah" class="w-12 h-12 rounded-full mr-4">
+                        <img src="https://intranet.youcode.ma/storage/users/profile/1160-1730909393.jpg" alt="Sarah" class="w-12 h-12 rounded-full mr-4">
                         <div>
                             <h4 class="font-semibold text-gray-800">Sarah Johnson</h4>
                             <p class="text-gray-500 text-sm">United States</p>
@@ -239,7 +320,7 @@
 
                 <div class="bg-white rounded-2xl p-8 shadow-lg card-hover">
                     <div class="flex items-center mb-6">
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face" alt="Marco" class="w-12 h-12 rounded-full mr-4">
+                        <img src="https://intranet.youcode.ma/storage/users/profile/1160-1730909393.jpg" alt="Marco" class="w-12 h-12 rounded-full mr-4">
                         <div>
                             <h4 class="font-semibold text-gray-800">Marco Silva</h4>
                             <p class="text-gray-500 text-sm">Spain</p>
@@ -250,7 +331,7 @@
 
                 <div class="bg-white rounded-2xl p-8 shadow-lg card-hover">
                     <div class="flex items-center mb-6">
-                        <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face" alt="Emma" class="w-12 h-12 rounded-full mr-4">
+                        <img src="https://intranet.youcode.ma/storage/users/profile/1160-1730909393.jpg" alt="Emma" class="w-12 h-12 rounded-full mr-4">
                         <div>
                             <h4 class="font-semibold text-gray-800">Emma Thompson</h4>
                             <p class="text-gray-500 text-sm">United Kingdom</p>
@@ -282,56 +363,237 @@
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-16">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid md:grid-cols-4 gap-8">
-                <div class="col-span-2">
-                    <img src="{{ asset('images/logos/logo.png') }}" alt="Culturoo" class="h-24 w-auto mb-4">
-                    <p class="text-gray-400 mb-6 max-w-md">Connecting travelers with authentic Moroccan families for genuine cultural experiences and lifelong memories.</p>
-                    <div class="flex space-x-4">
-                        <a href="#" class="text-gray-400 hover:text-orange-400 transition-colors duration-300">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-orange-400 transition-colors duration-300">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"/></svg>
-                        </a>
-                        <a href="#" class="text-gray-400 hover:text-orange-400 transition-colors duration-300">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.749-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001.012.001z"/></svg>
-                        </a>
+    <footer class="bg-gray-900 text-white py-10 relative overflow-hidden">
+        <!-- Decorative Background Pattern -->
+        <div class="absolute inset-0 opacity-5">
+            <div class="moroccan-pattern h-full w-full"></div>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <!-- Main Footer Content -->
+            <div class="mb-6">
+                <!-- Top Row: Logo and Brand Description -->
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mt-6 mb-6">
+                    <div class="flex flex-col lg:flex-row lg:items-center mb-4 lg:mb-0">
+                        <p class="text-gray-400 leading-relaxed max-w-md">Connecting travelers with authentic Moroccan families for genuine cultural experiences and lifelong memories.</p>
+                    </div>
+                    
+                    <!-- Navigation Links on Same Line -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+                        <!-- Quick Links -->
+                        <div>
+                            <h4 class="text-base font-['Playfair_Display'] font-semibold mb-3 text-white">Discover</h4>
+                            <ul class="space-y-1 text-gray-400 text-sm">
+                                <li><a href="#" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                    <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                                    Browse Host Families
+                                </a></li>
+                                <li><a href="#" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                    <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                                    Cultural Experiences
+                                </a></li>
+                                <li><a href="#" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                    <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                                    Travel Guide
+                                </a></li>
+                                <li><a href="#" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                    <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                                    Safety Center
+                                </a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Host Resources -->
+                        <div>
+                            <h4 class="text-base font-['Playfair_Display'] font-semibold mb-3 text-white">For Hosts</h4>
+                            <ul class="space-y-1 text-gray-400 text-sm">
+                                <li><a href="#" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                    <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                                    Start Hosting
+                                </a></li>
+                                <li><a href="#" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                    <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                                    Host Guidelines
+                                </a></li>
+                                <li><a href="#" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                    <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                                    Community Forum
+                                </a></li>
+                                <li><a href="#" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                    <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                                    Support Center
+                                </a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Support -->
+                        <div>
+                            <h4 class="text-base font-['Playfair_Display'] font-semibold mb-3 text-white">Support</h4>
+                            <ul class="space-y-1 text-gray-400 text-sm">
+                                <li><a href="#" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                    <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                                    Help Center
+                                </a></li>
+                                <li><a href="#" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                    <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                                    Contact Us
+                                </a></li>
+                                <li><a href="#" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                    <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                                    Privacy Policy
+                                </a></li>
+                                <li><a href="#" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                    <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                                    Terms of Service
+                                </a></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">For Travelers</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-orange-400 transition-colors duration-300">Find Families</a></li>
-                        <li><a href="#" class="hover:text-orange-400 transition-colors duration-300">How It Works</a></li>
-                        <li><a href="#" class="hover:text-orange-400 transition-colors duration-300">Safety Guidelines</a></li>
-                        <li><a href="#" class="hover:text-orange-400 transition-colors duration-300">Travel Tips</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">For Hosts</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-orange-400 transition-colors duration-300">Become a Host</a></li>
-                        <li><a href="#" class="hover:text-orange-400 transition-colors duration-300">Host Resources</a></li>
-                        <li><a href="#" class="hover:text-orange-400 transition-colors duration-300">Community</a></li>
-                        <li><a href="#" class="hover:text-orange-400 transition-colors duration-300">Support</a></li>
-                    </ul>
+
+                <!-- Bottom Row: Newsletter and Social Media -->
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                    <!-- Newsletter Signup -->
+                    <div class="mb-4 lg:mb-0">
+                        <h5 class="text-white font-semibold mb-2">Stay Connected</h5>
+                        <div class="flex max-w-sm">
+                            <input type="email" placeholder="Enter your email" class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-l-lg text-white placeholder-gray-400 focus:outline-none focus:border-orange-400 transition-colors text-sm">
+                            <button class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 px-4 py-2 rounded-r-lg transition-all duration-300 font-medium text-sm">
+                                Subscribe
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Social Media -->
+                    <div>
+                        <h5 class="text-white font-semibold mb-2">Follow Us</h5>
+                        <div class="flex space-x-3">
+                            <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                            </a>
+                            <a href="#" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-                <p>&copy; 2025 Culturoo. All rights reserved. Made with ❤️ for cultural exchange.</p>
+
+            <!-- Bottom Section -->
+            <div class="border-t border-gray-800 pt-6">
+                <div class="flex flex-col lg:flex-row justify-between items-center space-y-3 lg:space-y-0">
+                    <!-- Copyright -->
+                    <div class="text-center lg:text-left mb-6">
+                        <p class="text-gray-400 text-sm">
+                            &copy; 2025 Culturoo. All rights reserved.
+                        </p>
+                        <p class="text-gray-500 text-xs flex items-center justify-center lg:justify-start mt-1">
+                            Made with 
+                            <svg class="w-3 h-3 mx-1 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+                            </svg>
+                            for cultural exchange in Morocco
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </footer>
 
     @vite('resources/js/app.js')
     <script>
+        // Toggle user dropdown menu
+        function toggleUserMenu() {
+            const userMenu = document.getElementById('user-menu');
+            const menuArrow = document.getElementById('menu-arrow');
+            
+            if (userMenu) {
+                userMenu.classList.toggle('hidden');
+                
+                // Toggle arrow rotation
+                if (userMenu.classList.contains('hidden')) {
+                    menuArrow.classList.remove('rotate-180');
+                } else {
+                    menuArrow.classList.add('rotate-180');
+                    
+                    // Force reflow to ensure the menu is visible and properly sized
+                    void userMenu.offsetWidth;
+                    
+                    // Ensure the menu is properly positioned and visible
+                    const menuRect = userMenu.getBoundingClientRect();
+                    const viewportWidth = window.innerWidth;
+                    
+                    // If menu is going off-screen, adjust position
+                    if (menuRect.right > viewportWidth) {
+                        userMenu.style.left = 'auto';
+                        userMenu.style.right = '0';
+                    }
+                }
+                
+                // Close mobile menu if open
+                const mobileMenu = document.getElementById('mobile-menu');
+                if (mobileMenu) mobileMenu.classList.add('hidden');
+            }
+        }
+
         // Mobile menu toggle
         function toggleMobileMenu() {
             const mobileMenu = document.getElementById('mobile-menu');
-            mobileMenu.classList.toggle('hidden');
+            if (mobileMenu) {
+                mobileMenu.classList.toggle('hidden');
+            }
+            
+            // Close user dropdown if open
+            const userMenu = document.getElementById('user-menu');
+            if (userMenu) {
+                userMenu.classList.add('hidden');
+            }
+            
+            // Reset arrow rotation
+            const menuArrow = document.getElementById('menu-arrow');
+            if (menuArrow) {
+                menuArrow.classList.remove('rotate-180');
+            }
         }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.getElementById('user-menu');
+            const menuButton = event.target.closest('[onclick="toggleUserMenu()"]');
+            const menuArrow = document.getElementById('menu-arrow');
+            
+            if (userMenu && !menuButton && !userMenu.contains(event.target)) {
+                userMenu.classList.add('hidden');
+                // Reset arrow rotation
+                if (menuArrow) {
+                    menuArrow.classList.remove('rotate-180');
+                }
+            }
+        });
+
+        // Close dropdown on escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const userMenu = document.getElementById('user-menu');
+                const menuArrow = document.getElementById('menu-arrow');
+                
+                if (userMenu) {
+                    userMenu.classList.add('hidden');
+                }
+                if (menuArrow) {
+                    menuArrow.classList.remove('rotate-180');
+                }
+                
+                // Also close mobile menu if open
+                const mobileMenu = document.getElementById('mobile-menu');
+                if (mobileMenu) {
+                    mobileMenu.classList.add('hidden');
+                }
+            }
+        });
 
         // Smooth scrolling for navigation links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -360,6 +622,14 @@
                 nav.classList.remove('bg-white/98');
             }
         });
+
+        // Scroll to top function
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
     </script>
 </body>
 </html>

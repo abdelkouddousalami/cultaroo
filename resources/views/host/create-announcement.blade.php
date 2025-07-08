@@ -65,6 +65,31 @@
             cursor: pointer;
             font-size: 14px;
         }
+        /* Searchable dropdown styling */
+        input[list] {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            padding-right: 30px;
+        }
+        
+        input[list]::-webkit-calendar-picker-indicator {
+            opacity: 0;
+        }
+        
+        /* Custom datalist appearance */
+        datalist {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        @-moz-document url-prefix() {
+            /* Styling for Firefox */
+            input[list] {
+                appearance: none;
+            }
+        }
     </style>
 </head>
 <body class="font-['Inter'] text-gray-800 bg-gradient-to-br from-orange-50 to-orange-100 min-h-screen">
@@ -132,9 +157,43 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             City <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="city" required 
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-300"
-                            placeholder="e.g., Marrakech, Casablanca, Fez">
+                        <div class="relative">
+                            <input type="text" id="announcementCityInput" list="announcementMoroccanCities" placeholder="Type to search cities..." 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-300">
+                            <input type="hidden" name="city" id="announcementCityHidden" required>
+                            <datalist id="announcementMoroccanCities">
+                                <option value="Agadir">Agadir</option>
+                                <option value="Al Hoceima">Al Hoceima</option>
+                                <option value="Assilah">Assilah</option>
+                                <option value="Azemmour">Azemmour</option>
+                                <option value="Beni Mellal">Beni Mellal</option>
+                                <option value="Casablanca">Casablanca</option>
+                                <option value="Chefchaouen">Chefchaouen</option>
+                                <option value="El Jadida">El Jadida</option>
+                                <option value="Erfoud">Erfoud</option>
+                                <option value="Essaouira">Essaouira</option>
+                                <option value="Fez">Fez</option>
+                                <option value="Ifrane">Ifrane</option>
+                                <option value="Kenitra">Kenitra</option>
+                                <option value="Larache">Larache</option>
+                                <option value="Marrakech">Marrakech</option>
+                                <option value="Meknes">Meknes</option>
+                                <option value="Merzouga">Merzouga</option>
+                                <option value="Mohammedia">Mohammedia</option>
+                                <option value="Nador">Nador</option>
+                                <option value="Ouarzazate">Ouarzazate</option>
+                                <option value="Oujda">Oujda</option>
+                                <option value="Rabat">Rabat</option>
+                                <option value="Safi">Safi</option>
+                                <option value="Sale">Sale</option>
+                                <option value="Tangier">Tangier</option>
+                                <option value="Taroudant">Taroudant</option>
+                                <option value="Taza">Taza</option>
+                                <option value="Tetouan">Tetouan</option>
+                                <option value="Tinghir">Tinghir</option>
+                                <option value="Zagora">Zagora</option>
+                            </datalist>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -606,6 +665,50 @@
                     availableUntil.value = '';
                 }
             });
+        });
+
+        // City input handling for searchable dropdown
+        document.addEventListener('DOMContentLoaded', function() {
+            const cityInput = document.getElementById('announcementCityInput');
+            const cityHidden = document.getElementById('announcementCityHidden');
+            
+            if (cityInput && cityHidden) {
+                // Update hidden input when user selects a city
+                cityInput.addEventListener('change', function() {
+                    cityHidden.value = this.value;
+                    
+                    // Validate the city is in our list
+                    const datalist = document.getElementById('announcementMoroccanCities');
+                    const options = Array.from(datalist.options).map(opt => opt.value);
+                    
+                    if (!options.includes(this.value) && this.value !== '') {
+                        // Reset if not valid
+                        this.value = '';
+                        cityHidden.value = '';
+                        showAlert('Please select a city from the list', 'error');
+                    }
+                });
+                
+                // Update hidden input as user types
+                cityInput.addEventListener('input', function() {
+                    cityHidden.value = this.value;
+                });
+                
+                // Also update when focus is lost
+                cityInput.addEventListener('blur', function() {
+                    // Wait a moment to ensure any selection is captured
+                    setTimeout(() => {
+                        const datalist = document.getElementById('announcementMoroccanCities');
+                        const options = Array.from(datalist.options).map(opt => opt.value);
+                        
+                        if (!options.includes(this.value) && this.value !== '') {
+                            this.value = '';
+                            cityHidden.value = '';
+                            showAlert('Please select a city from the list', 'error');
+                        }
+                    }, 200);
+                });
+            }
         });
     </script>
 </body>

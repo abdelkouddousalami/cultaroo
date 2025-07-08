@@ -80,47 +80,395 @@
             background-color: #10b981;
             color: white;
         }
+
+        /* Enhanced Navbar Styles */
+        .nav-link {
+            @apply flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-all duration-300;
+        }
+        
+        .nav-link.active {
+            @apply text-orange-600 bg-orange-50 font-semibold;
+        }
+        
+        .btn-success {
+            @apply bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-300 inline-flex items-center text-sm;
+        }
+        
+        .btn-danger {
+            @apply bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-300 inline-flex items-center text-sm;
+        }
+        
+        .dropdown-item {
+            @apply block px-4 py-2 text-base text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors duration-200 flex items-center;
+            width: 100%;
+        }
+        
+        /* Navbar animations */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        #user-menu:not(.hidden) {
+            animation: slideDown 0.2s ease-out;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            .nav-link {
+                @apply px-2 py-1 text-xs;
+            }
+        }
+        
+        /* Active states and focus styles */
+        .nav-link:focus,
+        .dropdown-item:focus {
+            @apply outline-none ring-2 ring-orange-500 ring-opacity-50;
+        }
+        
+        /* Custom gradient for brand */
+        .brand-gradient {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Enhanced button styles */
+        .btn-success:hover,
+        .btn-danger:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Smooth transitions for all interactive elements */
+        * {
+            transition-property: color, background-color, border-color, transform, box-shadow;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+
+        /* Searchable dropdown styling */
+        input[list] {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            padding-right: 30px;
+        }
+        
+        input[list]::-webkit-calendar-picker-indicator {
+            opacity: 0;
+        }
+        
+        /* Custom datalist appearance */
+        datalist {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        @-moz-document url-prefix() {
+            /* Styling for Firefox */
+            input[list] {
+                appearance: none;
+            }
+        }
     </style>
 </head>
-<body class="font-['Inter'] text-gray-800 bg-gradient-to-br from-orange-50 to-orange-100 min-h-screen">
+<body class="font-['Inter'] text-gray-800 bg-orange-50">
     <!-- Navigation -->
-    <nav class="bg-white/95 backdrop-blur-sm shadow-lg">
+    <nav class="fixed top-0 w-full bg-white/95 backdrop-blur-sm shadow-lg z-50 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
                 <div class="flex items-center">
-                    <a href="{{ route('welcome') }}">
-                        <img src="{{ asset('images/logos/logo.png') }}" alt="Culturoo" class="h-16 w-auto">
+                    <a href="{{ route('welcome') }}" class="flex items-center space-x-3 group">
+                        <img src="{{ asset('images/logos/logo.png') }}" alt="Culturoo" class="h-12 w-auto transition-transform duration-300 group-hover:scale-105 brand-logo">
+                        <div class="hidden sm:block">
+                            <h1 class="text-xl font-bold bg-gradient-to-r from-orange-600 to-orange-800 bg-clip-text text-transparent">Culturoo</h1>
+                            <p class="text-xs text-gray-500">Cultural Exchange</p>
+                        </div>
                     </a>
                 </div>
-                <div class="flex items-center space-x-6">
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="{{ route('welcome') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Home</a>
                     <a href="{{ route('listings.index') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Host Families</a>
-                    <span class="text-gray-700">Welcome, <span class="font-semibold text-orange-600">{{ Auth::user()->first_name ?? Auth::user()->name }}</span></span>
+                    <a href="{{ route('profile') }}" class="text-orange-600 font-medium transition-colors duration-300">My Profile</a>
+                    
+                    <!-- Notifications -->
+                    <button class="relative text-gray-700 hover:text-orange-600 transition-colors duration-300" onclick="toggleNotifications()">
+                        Notifications
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                    </button>
+                    
+                    <!-- Host Dashboard - Only visible if User is Host -->
                     @if(Auth::user()->isHost())
-                        <a href="{{ route('host.dashboard') }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-300 inline-flex items-center">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                            </svg>
+                        <a href="{{ route('host.dashboard') }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium">
                             Host Dashboard
                         </a>
                     @endif
+                    
+                    <!-- Admin Panel - Only visible if User is Admin -->
                     @if(Auth::user()->isAdmin())
-                        <a href="{{ route('admin.panel') }}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-300 inline-flex items-center">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+                        <a href="{{ route('admin.panel') }}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium">
+                            Admin
+                        </a>
+                    @endif
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- User Profile Dropdown -->
+                    <div class="relative">
+                        <button onclick="toggleUserMenu()" class="flex items-center space-x-2 text-gray-700 hover:text-orange-600 transition-colors duration-300 p-2 rounded-lg hover:bg-orange-50 menu-button">
+                            <div class="hidden sm:block text-right mr-2">
+                                <p class="text-sm font-medium text-gray-900">{{ Auth::user()->first_name ?? Auth::user()->name }}</p>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-sm font-bold profile-avatar">
+                                @if(Auth::user()->profile_picture)
+                                    <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" alt="Profile" class="w-10 h-10 rounded-full object-cover">
+                                @else
+                                    {{ strtoupper(substr(Auth::user()->first_name ?? Auth::user()->name, 0, 1)) }}
+                                @endif
+                            </div>
+                            <svg class="w-5 h-5 transform transition-transform duration-200" id="menu-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                             </svg>
+                        </button>
+                        
+                        <!-- Dropdown Content -->
+                        <div id="user-menu" class="absolute right-0 mt-2 w-[250px] bg-white rounded-xl shadow-2xl border-2 border-orange-200 py-3 hidden dropdown-menu" style="z-index: 100000; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); position: absolute; transform: translateZ(0);">
+                            <!-- User Info Section -->
+                            <div class="px-4 py-3 border-b border-gray-200">
+                                <p class="font-medium text-gray-900 text-base">{{ Auth::user()->first_name ?? Auth::user()->name }} {{ Auth::user()->last_name }}</p>
+                                <p class="text-sm text-gray-500 mt-1">{{ Auth::user()->email }}</p>
+                                <div class="mt-2">
+                                    <span class="text-sm bg-{{ Auth::user()->role_color ?? 'orange' }}-100 text-{{ Auth::user()->role_color ?? 'orange' }}-800 px-3 py-1 rounded-full font-medium">
+                                        {{ Auth::user()->role_display }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Dropdown Actions -->
+                            <div class="py-2">
+                                <!-- Edit Profile -->
+                                <button onclick="toggleEditMode(); toggleUserMenu();" class="dropdown-item w-full text-left font-medium text-base py-3">
+                                    Edit Info
+                                </button>
+                            </div>
+
+                            <!-- Logout -->
+                            <div class="border-t border-gray-200 pt-2">
+                                <form method="POST" action="{{ route('auth.logout') }}" class="w-full">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item text-red-600 hover:bg-red-50 w-full text-left font-medium text-base py-3">
+                                        Logout
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mobile menu button -->
+                    <div class="md:hidden">
+                        <button class="text-gray-700 hover:text-orange-600 focus:outline-none focus:text-orange-600" onclick="toggleMobileMenu()">
+                            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile menu -->
+            <div id="mobile-menu" class="hidden md:hidden">
+                <div class="px-2 pt-2 pb-3 space-y-1 bg-white border-t border-gray-200">
+                    <a href="{{ route('welcome') }}" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Home</a>
+                    <a href="{{ route('listings.index') }}" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Host Families</a>
+                    <a href="{{ route('profile') }}" class="block px-3 py-2 text-orange-600 font-medium">My Profile</a>
+                    
+                    <button onclick="toggleNotifications()" class="w-full text-left block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">
+                        <div class="flex items-center">
+                            Notifications
+                            <span class="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                        </div>
+                    </button>
+                    
+                    @if(Auth::user()->isHost())
+                        <a href="{{ route('host.dashboard') }}" class="block px-3 py-2 text-white bg-green-600 hover:bg-green-700 rounded-lg font-medium">
+                            Host Dashboard
+                        </a>
+                    @endif
+                    
+                    @if(Auth::user()->isAdmin())
+                        <a href="{{ route('admin.panel') }}" class="block px-3 py-2 text-white bg-red-600 hover:bg-red-700 rounded-lg font-medium">
                             Admin Panel
                         </a>
                     @endif
-                    <form method="POST" action="{{ route('auth.logout') }}" class="inline">
-                        @csrf
-                        <button type="submit" class="text-orange-600 hover:text-orange-700 font-medium transition-colors duration-300">
-                            Logout
+                    
+                    <div class="border-t border-gray-200 pt-3 mt-3">
+                        <!-- User Info -->
+                        <div class="mb-4 p-3 bg-white rounded-lg border border-orange-100">
+                            <p class="font-medium text-gray-900 text-lg">{{ Auth::user()->first_name ?? Auth::user()->name }} {{ Auth::user()->last_name }}</p>
+                            <p class="text-sm text-gray-500 mb-2">{{ Auth::user()->email }}</p>
+                            <span class="text-sm bg-{{ Auth::user()->role_color ?? 'orange' }}-100 text-{{ Auth::user()->role_color ?? 'orange' }}-800 px-3 py-1 rounded-full font-medium">
+                                {{ Auth::user()->role_display }}
+                            </span>
+                        </div>
+                        
+                        <button onclick="toggleEditMode(); toggleMobileMenu();" class="w-full py-3 px-4 rounded-lg text-left bg-orange-50 text-orange-700 hover:bg-orange-100 font-medium mb-3 flex items-center justify-center text-lg">
+                            Edit Info
                         </button>
-                    </form>
+                        
+                        <form method="POST" action="{{ route('auth.logout') }}" class="w-full">
+                            @csrf
+                            <button type="submit" class="w-full py-3 px-4 rounded-lg text-left bg-red-50 text-red-700 hover:bg-red-100 font-medium flex items-center justify-center text-lg">
+                                Logout
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </nav>
+                        
+                        <!-- Dropdown Content - Always visible, text-only, and accessible -->
+                        <div id="user-menu" class="absolute right-0 mt-2 w-[250px] bg-white rounded-xl shadow-2xl border-2 border-orange-200 py-3 hidden dropdown-menu" style="z-index: 100000; left: -8rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); position: absolute; transform: translateZ(0);">
+                            <!-- User Info Section - Enhanced for clarity -->
+                            <div class="px-4 py-3 border-b border-gray-200">
+                                <p class="font-medium text-gray-900 text-base">{{ Auth::user()->first_name ?? Auth::user()->name }} {{ Auth::user()->last_name }}</p>
+                                <p class="text-sm text-gray-500 mt-1">{{ Auth::user()->email }}</p>
+                                <div class="mt-2">
+                                    <span class="text-sm bg-{{ Auth::user()->role_color ?? 'orange' }}-100 text-{{ Auth::user()->role_color ?? 'orange' }}-800 px-3 py-1 rounded-full font-medium">
+                                        {{ Auth::user()->role_display }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Dropdown Actions - Only Edit Info and Logout, text-only -->
+                            <div class="py-2">
+                                <!-- Edit Profile -->
+                                <button onclick="toggleEditMode(); toggleUserMenu();" class="dropdown-item w-full text-left font-medium text-base py-3">
+                                    Edit Info
+                                </button>
+                            </div>
+
+                            <!-- Logout -->
+                            <div class="border-t border-gray-200 pt-2">
+                                <form method="POST" action="{{ route('auth.logout') }}" class="w-full">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item text-red-600 hover:bg-red-50 w-full text-left font-medium text-base py-3">
+                                        Logout
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu (Hidden by default) -->
+    <div id="mobile-menu" class="md:hidden fixed inset-0 z-50 bg-gray-900 bg-opacity-50 hidden">
+        <div class="bg-white h-full w-4/5 max-w-sm py-6 px-4 overflow-y-auto shadow-xl">
+            <div class="flex items-center justify-between mb-6 border-b border-gray-200 pb-3">
+                <div class="flex items-center space-x-3">
+                    <img src="{{ asset('images/logos/logo.png') }}" alt="Culturoo" class="h-10 w-auto">
+                    <h3 class="text-lg font-bold bg-gradient-to-r from-orange-600 to-orange-800 bg-clip-text text-transparent">Culturoo</h3>
+                </div>
+                <button onclick="toggleMobileMenu()" class="p-2 rounded-lg text-gray-600 hover:bg-gray-100">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <nav class="space-y-4">
+                <a href="{{ route('welcome') }}" class="block py-2 px-4 rounded-lg hover:bg-orange-50 text-gray-700 hover:text-orange-600 font-medium">
+                    <div class="flex items-center">
+                        Home
+                    </div>
+                </a>
+                <a href="{{ route('listings.index') }}" class="block py-2 px-4 rounded-lg hover:bg-orange-50 text-gray-700 hover:text-orange-600 font-medium">
+                    <div class="flex items-center">
+                        Host Families
+                    </div>
+                </a>
+                <a href="{{ route('profile') }}" class="block py-2 px-4 rounded-lg hover:bg-orange-50 bg-orange-50 text-orange-600 font-medium">
+                    <div class="flex items-center">
+                        My Profile
+                    </div>
+                </a>
+                
+                @if(Auth::user()->isHost())
+                    <a href="{{ route('host.dashboard') }}" class="block py-2 px-4 rounded-lg hover:bg-green-50 text-green-700 hover:text-green-800 font-medium">
+                        <div class="flex items-center">
+                            Host Dashboard
+                        </div>
+                    </a>
+                @endif
+                
+                @if(Auth::user()->isAdmin())
+                    <a href="{{ route('admin.panel') }}" class="block py-2 px-4 rounded-lg hover:bg-red-50 text-red-700 hover:text-red-800 font-medium">
+                        <div class="flex items-center">
+                            Admin Panel
+                        </div>
+                    </a>
+                @endif
+            </nav>                
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <!-- User Info -->
+                    <div class="mb-4 p-3 bg-white rounded-lg border border-orange-100">
+                        <p class="font-medium text-gray-900 text-lg">{{ Auth::user()->first_name ?? Auth::user()->name }} {{ Auth::user()->last_name }}</p>
+                        <p class="text-sm text-gray-500 mb-2">{{ Auth::user()->email }}</p>
+                        <span class="text-sm bg-{{ Auth::user()->role_color ?? 'orange' }}-100 text-{{ Auth::user()->role_color ?? 'orange' }}-800 px-3 py-1 rounded-full font-medium">
+                            {{ Auth::user()->role_display }}
+                        </span>
+                    </div>
+                    
+                    <button onclick="toggleEditMode(); toggleMobileMenu();" class="w-full py-3 px-4 rounded-lg text-left bg-orange-50 text-orange-700 hover:bg-orange-100 font-medium mb-3 flex items-center justify-center text-lg">
+                        Edit Info
+                    </button>
+                    
+                    <form method="POST" action="{{ route('auth.logout') }}" class="w-full">
+                        @csrf
+                        <button type="submit" class="w-full py-3 px-4 rounded-lg text-left bg-red-50 text-red-700 hover:bg-red-100 font-medium flex items-center justify-center text-lg">
+                            Logout
+                        </button>
+                    </form>
+                </div>
+        </div>
+    </div>
+
+    <!-- Breadcrumb Navigation -->
+    <div class="bg-orange-50/50 border-b border-orange-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <nav class="flex" aria-label="Breadcrumb">
+                <ol class="flex items-center space-x-2">
+                    <li>
+                        <a href="{{ route('welcome') }}" class="text-gray-500 hover:text-orange-600 transition-colors duration-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                            </svg>
+                            <span class="sr-only">Home</span>
+                        </a>
+                    </li>
+                    <li>
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 text-gray-400 mx-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-700 font-medium">My Profile</span>
+                        </div>
+                    </li>
+                </ol>
+            </nav>
+        </div>
+    </div>
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <!-- Alert Messages -->
@@ -153,12 +501,6 @@
                             </h1>
                             <p class="text-gray-600 mb-2">{{ Auth::user()->email }}</p>
                         </div>
-                        <button id="edit-info-btn" onclick="toggleEditMode()" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-300 inline-flex items-center">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                            </svg>
-                            <span id="edit-btn-text">Edit Info</span>
-                        </button>
                     </div>
                     <div class="flex flex-wrap gap-2 justify-center md:justify-start">
                         <span class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">
@@ -391,7 +733,7 @@
                                         <div class="text-sm text-gray-600 mb-4">
                                             <div class="flex items-center mb-1">
                                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                                 </svg>
                                                 {{ \Carbon\Carbon::parse($booking->check_in_date)->format('M d') }} - {{ \Carbon\Carbon::parse($booking->check_out_date)->format('M d, Y') }}
                                             </div>
@@ -427,7 +769,6 @@
                                                         @if(in_array($booking->status, ['confirmed', 'completed']))
                                                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                                            </svg>
                                                         @elseif($booking->status === 'pending')
                                                             <div class="w-2 h-2 bg-current rounded-full animate-pulse"></div>
                                                         @else
@@ -450,7 +791,6 @@
                                                         @if($booking->status === 'completed')
                                                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                                                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                                                            </svg>
                                                         @else
                                                             <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
                                                         @endif
@@ -461,13 +801,15 @@
                                             
                                             <!-- Progress Bar -->
                                             <div class="w-full bg-gray-200 rounded-full h-1">
-                                                <div class="bg-green-600 h-1 rounded-full transition-all duration-300" style="width: 
-                                                    @if($booking->status === 'completed') 100% 
-                                                    @elseif($booking->status === 'confirmed') 66% 
-                                                    @elseif($booking->status === 'pending') 33%
-                                                    @elseif($booking->status === 'rejected' || $booking->status === 'cancelled') 33%
-                                                    @else 33% 
-                                                    @endif"></div>
+                                                @php
+                                                    $progressClass = 'w-1/3'; // Default 33%
+                                                    if ($booking->status === 'completed') {
+                                                        $progressClass = 'w-full'; // 100%
+                                                    } elseif ($booking->status === 'confirmed') {
+                                                        $progressClass = 'w-2/3'; // 66%
+                                                    }
+                                                @endphp
+                                                <div class="bg-green-600 h-1 rounded-full transition-all duration-300 {{$progressClass}}"></div>
                                             </div>
                                         </div>
 
@@ -557,9 +899,6 @@
                                     <p class="text-gray-700 mb-4">Want to share Moroccan culture with travelers?</p>
                                     <button onclick="showHostApplicationForm()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-300">
                                         Apply to be a Host
-                                    </button>
-                                    <button onclick="console.log('Test button clicked'); alert('JavaScript is working!');" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-300 ml-2">
-                                        Test JS
                                     </button>
                                 </div>
                             @else
@@ -701,17 +1040,375 @@
     </div>
 
     @vite('resources/js/app.js')
+    
+    <style>
+        /* Enhanced Navbar Styles */
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .nav-link:hover {
+            color: #ea580c;
+            background-color: #fff7ed;
+            transform: translateY(-1px);
+        }
+        
+        .nav-link.active {
+            color: #ea580c;
+            background-color: #fff7ed;
+            font-weight: 600;
+        }
+        
+        .btn-success {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: white;
+            background-color: #16a34a;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-success:hover {
+            background-color: #15803d;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-danger {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: white;
+            background-color: #dc2626;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-danger:hover {
+            background-color: #b91c1c;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            color: #374151;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .dropdown-item:hover {
+            background-color: #fff7ed;
+            color: #ea580c;
+            transform: translateX(3px);
+        }
+        
+        /* Navbar animations */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        #user-menu:not(.hidden) {
+            animation: slideDown 0.2s ease-out;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+            .nav-link {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+        }
+        
+        /* Active states and focus styles */
+        .nav-link:focus,
+        .dropdown-item:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.5);
+        }
+        
+        /* Profile avatar animation */
+        .profile-avatar {
+            transition: all 0.3s ease;
+        }
+        
+        .profile-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+         /* Menu button animation */
+        .menu-button {
+            transition: all 0.3s ease;
+        }
+
+        .menu-button:hover {
+            background-color: #fff7ed;
+            transform: scale(1.05);
+        }
+
+        .menu-button svg {
+            transition: transform 0.3s ease;
+        }
+
+        .menu-button.active svg {
+            transform: rotate(180deg);
+        }
+        
+        /* Dropdown menu styling */
+        .dropdown-menu {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(234, 88, 12, 0.2);
+            transform-origin: top center;
+            transition: all 0.3s ease;
+        }
+
+        /* Notification badge styling */
+        .notification-badge {
+            position: absolute;
+            top: -0.25rem;
+            right: -0.25rem;
+            background-color: #ef4444;
+            color: white;
+            font-size: 0.75rem;
+            border-radius: 9999px;
+            height: 1.25rem;
+            width: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .7;
+            }
+        }
+
+        /* Enhanced hover effects */
+        .nav-link:hover svg,
+        .dropdown-item:hover svg {
+            transform: translateX(2px);
+            transition: transform 0.2s ease;
+        }
+
+        /* Brand logo hover effect */
+        .brand-logo {
+            transition: all 0.3s ease;
+        }
+
+        .brand-logo:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+
+        /* Improved mobile responsiveness */
+        @media (max-width: 768px) {
+            .nav-link {
+                padding: 0.5rem;
+                font-size: 0.875rem;
+            }
+            
+            .dropdown-item {
+                padding: 1rem;
+                font-size: 1rem;
+            }
+        }
+
+        /* Smooth scrolling for navigation */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Loading state for buttons */
+        .btn-loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .btn-loading::after {
+            content: "";
+            position: absolute;
+            width: 1rem;
+            height: 1rem;
+            top: 50%;
+            left: 50%;
+            margin-left: -0.5rem;
+            margin-top: -0.5rem;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+    
     <script>
         // CSRF token setup
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         let isEditMode = false;
 
+        // Toggle user dropdown menu
+        function toggleUserMenu() {
+            const userMenu = document.getElementById('user-menu');
+            const menuButton = document.querySelector('[onclick="toggleUserMenu()"]');
+            const menuArrow = document.getElementById('menu-arrow');
+            
+            userMenu.classList.toggle('hidden');
+            
+            // Toggle arrow rotation
+            if (userMenu.classList.contains('hidden')) {
+                menuArrow.classList.remove('rotate-180');
+            } else {
+                menuArrow.classList.add('rotate-180');
+                
+                // Force reflow to ensure the menu is visible and properly sized
+                void userMenu.offsetWidth;
+                
+                // Make sure the dropdown is on top of other elements
+                userMenu.style.zIndex = '100000';
+                
+                // Apply 3D transform to help with layering
+                userMenu.style.transform = 'translateZ(0)';
+                
+                // Ensure the menu is properly positioned and visible
+                const menuRect = userMenu.getBoundingClientRect();
+                const viewportWidth = window.innerWidth;
+                
+                // If menu is going off-screen, adjust position
+                if (menuRect.right > viewportWidth) {
+                    userMenu.style.left = 'auto';
+                    userMenu.style.right = '0';
+                } else {
+                    // Keep the default left position
+                    userMenu.style.left = '-8rem';
+                    userMenu.style.right = 'auto';
+                }
+            }
+            
+            // Close notifications if open
+            const notificationsMenu = document.getElementById('notifications-menu');
+            if (notificationsMenu) notificationsMenu.classList.add('hidden');
+            
+            // Close mobile menu if open
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu) mobileMenu.classList.add('hidden');
+        }
+
+        // Toggle mobile menu
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu) {
+                mobileMenu.classList.toggle('hidden');
+            }
+            // Close other menus
+            document.getElementById('user-menu').classList.add('hidden');
+            const notificationsMenu = document.getElementById('notifications-menu');
+            if (notificationsMenu) notificationsMenu.classList.add('hidden');
+            
+            // Reset arrow rotation
+            const menuArrow = document.getElementById('menu-arrow');
+            if (menuArrow) menuArrow.classList.remove('rotate-180');
+        }
+
+        // Toggle notifications dropdown
+        function toggleNotifications() {
+            const notificationsMenu = document.getElementById('notifications-menu');
+            if (notificationsMenu) {
+                notificationsMenu.classList.toggle('hidden');
+            }
+            // Close user menu if open
+            document.getElementById('user-menu').classList.add('hidden');
+            
+            // Reset arrow rotation
+            const menuArrow = document.getElementById('menu-arrow');
+            if (menuArrow) menuArrow.classList.remove('rotate-180');
+            
+            // Close mobile menu if open
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu) mobileMenu.classList.add('hidden');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.getElementById('user-menu');
+            const menuButton = event.target.closest('[onclick="toggleUserMenu()"]');
+            const menuArrow = document.getElementById('menu-arrow');
+            
+            if (!menuButton && !userMenu.contains(event.target)) {
+                userMenu.classList.add('hidden');
+                // Reset arrow rotation
+                if (menuArrow) {
+                    menuArrow.classList.remove('rotate-180');
+                }
+            }
+        });
+
+        // Close dropdown on escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const userMenu = document.getElementById('user-menu');
+                const menuArrow = document.getElementById('menu-arrow');
+                
+                userMenu.classList.add('hidden');
+                if (menuArrow) {
+                    menuArrow.classList.remove('rotate-180');
+                }
+                
+                // Also close mobile menu if open
+                const mobileMenu = document.getElementById('mobile-menu');
+                if (mobileMenu) mobileMenu.classList.add('hidden');
+                
+                // Also close notifications if open
+                const notificationsMenu = document.getElementById('notifications-menu');
+                if (notificationsMenu) notificationsMenu.classList.add('hidden');
+            }
+        });
+
         // Toggle between view and edit modes
         function toggleEditMode() {
             const viewMode = document.getElementById('view-mode');
             const editMode = document.getElementById('edit-mode');
-            const editBtn = document.getElementById('edit-info-btn');
-            const editBtnText = document.getElementById('edit-btn-text');
 
             if (!isEditMode) {
                 // Switch to edit mode
@@ -724,9 +1421,10 @@
                     }, 50);
                 }, 300);
                 
-                editBtnText.textContent = 'Cancel';
-                editBtn.className = 'bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-300 inline-flex items-center';
                 isEditMode = true;
+                
+                // Show success message
+                showAlert('Edit mode activated. Make your changes and click "Update Profile" to save.', 'success');
             } else {
                 // Switch to view mode
                 cancelEdit();
@@ -736,8 +1434,6 @@
         function cancelEdit() {
             const viewMode = document.getElementById('view-mode');
             const editMode = document.getElementById('edit-mode');
-            const editBtn = document.getElementById('edit-info-btn');
-            const editBtnText = document.getElementById('edit-btn-text');
 
             editMode.style.opacity = '0';
             setTimeout(() => {
@@ -748,8 +1444,6 @@
                 }, 50);
             }, 300);
             
-            editBtnText.textContent = 'Edit Info';
-            editBtn.className = 'bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-300 inline-flex items-center';
             isEditMode = false;
         }
 
@@ -1020,6 +1714,50 @@
                 });
             }
         });
+
+        // City input handling for searchable dropdown
+        document.addEventListener('DOMContentLoaded', function() {
+            const cityInput = document.getElementById('cityInput');
+            const cityHidden = document.getElementById('cityHidden');
+            
+            if (cityInput && cityHidden) {
+                // Update hidden input when user selects a city
+                cityInput.addEventListener('change', function() {
+                    cityHidden.value = this.value;
+                    
+                    // Validate the city is in our list
+                    const datalist = document.getElementById('moroccanCities');
+                    const options = Array.from(datalist.options).map(opt => opt.value);
+                    
+                    if (!options.includes(this.value) && this.value !== '') {
+                        // Reset if not valid
+                        this.value = '';
+                        cityHidden.value = '';
+                        showAlert('Please select a city from the list', 'error');
+                    }
+                });
+                
+                // Update hidden input as user types
+                cityInput.addEventListener('input', function() {
+                    cityHidden.value = this.value;
+                });
+                
+                // Also update when focus is lost
+                cityInput.addEventListener('blur', function() {
+                    // Wait a moment to ensure any selection is captured
+                    setTimeout(() => {
+                        const datalist = document.getElementById('moroccanCities');
+                        const options = Array.from(datalist.options).map(opt => opt.value);
+                        
+                        if (!options.includes(this.value) && this.value !== '') {
+                            this.value = '';
+                            cityHidden.value = '';
+                            showAlert('Please select a city from the list', 'error');
+                        }
+                    }, 200);
+                });
+            }
+        });
     </script>
 
     <!-- Host Application Modal -->
@@ -1067,9 +1805,43 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             City <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="city" required 
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-300"
-                            placeholder="e.g., Marrakech, Casablanca, Fez">
+                        <div class="relative">
+                            <input type="text" id="cityInput" list="moroccanCities" placeholder="Type to search cities..." 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-300">
+                            <input type="hidden" name="city" id="cityHidden" required>
+                            <datalist id="moroccanCities">
+                                <option value="Agadir">Agadir</option>
+                                <option value="Al Hoceima">Al Hoceima</option>
+                                <option value="Assilah">Assilah</option>
+                                <option value="Azemmour">Azemmour</option>
+                                <option value="Beni Mellal">Beni Mellal</option>
+                                <option value="Casablanca">Casablanca</option>
+                                <option value="Chefchaouen">Chefchaouen</option>
+                                <option value="El Jadida">El Jadida</option>
+                                <option value="Erfoud">Erfoud</option>
+                                <option value="Essaouira">Essaouira</option>
+                                <option value="Fez">Fez</option>
+                                <option value="Ifrane">Ifrane</option>
+                                <option value="Kenitra">Kenitra</option>
+                                <option value="Larache">Larache</option>
+                                <option value="Marrakech">Marrakech</option>
+                                <option value="Meknes">Meknes</option>
+                                <option value="Merzouga">Merzouga</option>
+                                <option value="Mohammedia">Mohammedia</option>
+                                <option value="Nador">Nador</option>
+                                <option value="Ouarzazate">Ouarzazate</option>
+                                <option value="Oujda">Oujda</option>
+                                <option value="Rabat">Rabat</option>
+                                <option value="Safi">Safi</option>
+                                <option value="Sale">Sale</option>
+                                <option value="Tangier">Tangier</option>
+                                <option value="Taroudant">Taroudant</option>
+                                <option value="Taza">Taza</option>
+                                <option value="Tetouan">Tetouan</option>
+                                <option value="Tinghir">Tinghir</option>
+                                <option value="Zagora">Zagora</option>
+                            </datalist>
+                        </div>
                     </div>
                     
                     <div>

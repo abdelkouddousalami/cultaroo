@@ -40,10 +40,14 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            
+            return back()->withErrors($validator)->withInput()->with('error', 'Please check the form for errors.');
         }
 
         try {
@@ -62,18 +66,35 @@ class AuthController extends Controller
             // Redirect based on user role (though new registrations are unlikely to be admin)
             $redirectRoute = $user->role === 'admin' ? 'admin.panel' : 'profile';
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Registration successful!',
-                'user' => $user,
-                'redirect' => route($redirectRoute)
-            ]);
+            // Check if the request expects JSON (for AJAX)
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Registration successful!',
+                    'user' => $user,
+                    'redirect' => route($redirectRoute)
+                ]);
+            }
+            
+            // For regular form submission, use flash message
+            return redirect()->route($redirectRoute)->with('success', 'Welcome to Culturoo! Your account has been created successfully.');
 
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Registration failed. Please try again.'
-            ], 500);
+            Log::error('Registration failed', [
+                'error' => $e->getMessage(),
+                'data' => $request->except(['password', 'password_confirmation'])
+            ]);
+            
+            $errorMessage = 'Registration failed. Please try again.';
+            
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage
+                ], 500);
+            }
+            
+            return back()->withInput()->with('error', $errorMessage);
         }
     }
 
@@ -130,12 +151,18 @@ class AuthController extends Controller
                 'redirect_url' => $redirectUrl
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Login successful!',
-                'user' => Auth::user(),
-                'redirect' => $redirectUrl
-            ]);
+            // Check if the request expects JSON (for AJAX)
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Login successful!',
+                    'user' => Auth::user(),
+                    'redirect' => $redirectUrl
+                ]);
+            }
+            
+            // For regular form submission, use flash message
+            return redirect($redirectUrl)->with('success', 'Welcome back! You have been logged in successfully.');
         }
 
         // Debug logging for failed login
@@ -144,10 +171,18 @@ class AuthController extends Controller
             'ip' => $request->ip()
         ]);
 
-        return response()->json([
-            'success' => false,
-            'message' => 'Invalid credentials. Please check your email and password.'
-        ], 401);
+        $errorMessage = 'Invalid credentials. Please check your email and password.';
+        
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => $errorMessage
+            ], 401);
+        }
+        
+        return back()->withErrors([
+            'email' => $errorMessage,
+        ])->with('error', $errorMessage);
     }
 
     /**
