@@ -883,6 +883,7 @@
                     <a href="{{ route('welcome') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Home</a>
                     <a href="#experiences" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Experiences</a>
                     <a href="{{ route('listings.index') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Host Families</a>
+                    <a href="{{ route('our-book') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Our Book</a>
                     <a href="#about" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">About</a>
                     <a href="{{ route('contact') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Contact</a>
                 </div>
@@ -922,6 +923,7 @@
                     <a href="{{ route('welcome') }}" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Home</a>
                     <a href="#experiences" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Experiences</a>
                     <a href="{{ route('listings.index') }}" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Host Families</a>
+                    <a href="{{ route('our-book') }}" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Our Book</a>
                     <a href="#about" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">About</a>
                     <a href="{{ route('contact') }}" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Contact</a>
                     <div class="border-t border-gray-200 pt-3 mt-3">
@@ -1154,24 +1156,22 @@
                 const isMobile = window.innerWidth <= 768;
                 
                 if (isMobile) {
-                    // Mobile transition - completely hide register form and show login form
-                    console.log('Mobile switch to login - hiding register, showing login');
-                    registerForm.style.display = 'none';
-                    registerForm.style.visibility = 'hidden';
-                    registerForm.style.opacity = '0';
-                    registerForm.classList.remove('visible-form');
-                    
+                    // Mobile: immediately switch forms
+                    console.log('Mobile switch to login');
                     loginForm.style.display = 'flex';
                     loginForm.style.visibility = 'visible';
                     loginForm.style.opacity = '1';
                     loginForm.classList.add('visible-form');
                     
-                    // Update tab states
+                    registerForm.style.display = 'none';
+                    registerForm.style.visibility = 'hidden';
+                    registerForm.style.opacity = '0';
+                    registerForm.classList.remove('visible-form');
+                    
+                    currentForm = 'login';
                     loginTab.classList.add('active');
                     registerTab.classList.remove('active');
                     switchIndicator.classList.remove('register');
-                    
-                    isAnimating = false;
                     return;
                 }
 
@@ -1455,34 +1455,25 @@
                     const isMobile = window.innerWidth <= 768;
                     
                     if (isMobile && currentForm !== 'login') {
-                        // Explicitly hide register form and show login form
-                        console.log('Tab click - switching to login on mobile');
-                        registerForm.style.display = 'none';
-                        registerForm.style.visibility = 'hidden';
-                        registerForm.style.opacity = '0';
-                        registerForm.classList.remove('visible-form');
-                        
+                        // Mobile: immediately switch forms
+                        console.log('Mobile switch to login');
                         loginForm.style.display = 'flex';
                         loginForm.style.visibility = 'visible';
                         loginForm.style.opacity = '1';
                         loginForm.classList.add('visible-form');
                         
-                        // Update tab states
+                        registerForm.style.display = 'none';
+                        registerForm.style.visibility = 'hidden';
+                        registerForm.style.opacity = '0';
+                        registerForm.classList.remove('visible-form');
+                        
+                        currentForm = 'login';
                         loginTab.classList.add('active');
                         registerTab.classList.remove('active');
                         switchIndicator.classList.remove('register');
-                        
-                        currentForm = 'login';
                         return;
                     }
                     
-                    // Desktop behavior
-                    if (currentForm !== 'login') {
-                        loginForm.classList.remove('slide-out-left', 'slide-out-right');
-                        loginForm.classList.add('visible-form');
-                        registerForm.classList.remove('visible-form');
-                        registerForm.classList.add('slide-out-right');
-                    }
                     tabClickTimeout = setTimeout(switchToLogin, 50);
                 });
 
@@ -1493,39 +1484,25 @@
                     const isMobile = window.innerWidth <= 768;
                     
                     if (isMobile && currentForm !== 'register') {
-                        // Explicitly hide login form and show register form
-                        console.log('Tab click - switching to register on mobile');
-                        loginForm.style.display = 'none';
-                        loginForm.style.visibility = 'hidden';
-                        loginForm.style.opacity = '0';
-                        loginForm.classList.remove('visible-form');
-                        
+                        // Mobile: immediately switch forms
+                        console.log('Mobile switch to register');
                         registerForm.style.display = 'flex';
                         registerForm.style.visibility = 'visible';
                         registerForm.style.opacity = '1';
                         registerForm.classList.add('visible-form');
                         
-                        // Update tab states
+                        loginForm.style.display = 'none';
+                        loginForm.style.visibility = 'hidden';
+                        loginForm.style.opacity = '0';
+                        loginForm.classList.remove('visible-form');
+                        
+                        currentForm = 'register';
                         registerTab.classList.add('active');
                         loginTab.classList.remove('active');
                         switchIndicator.classList.add('register');
-                        
-                        // Reset scroll position
-                        setTimeout(() => {
-                            registerForm.scrollTop = 0;
-                        }, 10);
-                        
-                        currentForm = 'register';
                         return;
                     }
                     
-                    // Desktop behavior
-                    if (currentForm !== 'register') {
-                        registerForm.classList.remove('slide-out-left', 'slide-out-right');
-                        registerForm.classList.add('visible-form');
-                        loginForm.classList.remove('visible-form');
-                        loginForm.classList.add('slide-out-left');
-                    }
                     tabClickTimeout = setTimeout(switchToRegister, 50);
                 });
 
@@ -1586,47 +1563,36 @@
                     e.preventDefault();
 
                     const formData = new FormData(this);
-                    const submitButton = this.querySelector('button[type="submit"]');
-                    const originalText = submitButton.textContent;
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.textContent;
 
-                    // Show loading state
-                    submitButton.textContent = 'Signing In...';
-                    submitButton.disabled = true;
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Signing In...';
 
                     fetch('{{ route("auth.login") }}', {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success && data.redirect) {
-                                showMessage('Login successful! Redirecting...', 'success');
-                                window.location.href = data.redirect;
-                            } else {
-                                submitButton.textContent = originalText;
-                                submitButton.disabled = false;
-                                showMessage(data.message || 'Login failed', 'error');
-
-                                if (data.errors) {
-                                    for (let field in data.errors) {
-                                        data.errors[field].forEach(error => {
-                                            showMessage(error, 'error');
-                                        });
-                                    }
-                                }
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Login error:', error);
-                            submitButton.textContent = originalText;
-                            submitButton.disabled = false;
-                            showMessage('An error occurred. Please try again.', 'error');
-                        });
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.href = data.redirect || '{{ route("profile") }}';
+                        } else {
+                            alert(data.message || 'Login failed. Please try again.');
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = originalText;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Login error:', error);
+                        alert('An error occurred. Please try again.');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalText;
+                    });
                 });
             }
 
@@ -1635,58 +1601,57 @@
                 registerForm.addEventListener('submit', function(e) {
                     e.preventDefault();
 
-                    const password = document.getElementById('registerPassword').value;
-                    const confirmPassword = document.getElementById('confirmPassword').value;
+                    const formData = new FormData(this);
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.textContent;
 
+                    // Validate password confirmation
+                    const password = formData.get('password');
+                    const confirmPassword = formData.get('password_confirmation');
+                    
                     if (password !== confirmPassword) {
-                        showMessage('Passwords do not match!', 'error');
-                        return false;
+                        alert('Passwords do not match.');
+                        return;
                     }
 
-                    const formData = new FormData(this);
-                    const submitButton = this.querySelector('button[type="submit"]');
-                    const originalText = submitButton.textContent;
-
-                    // Show loading state
-                    submitButton.textContent = 'Creating Account...';
-                    submitButton.disabled = true;
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Creating Account...';
 
                     fetch('{{ route("auth.register") }}', {
-                            method: 'POST',
-                            body: formData,
-                            headers: {
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                                'Accept': 'application/json'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                showMessage(data.message, 'success');
-                                if (data.redirect) {
-                                    window.location.href = data.redirect;
-                                }
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Accept': 'application/json',
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Redirect to OTP verification page
+                            window.location.href = data.redirect;
+                        } else {
+                            if (data.errors) {
+                                let errorMessage = '';
+                                Object.values(data.errors).forEach(errors => {
+                                    errors.forEach(error => {
+                                        errorMessage += error + '\n';
+                                    });
+                                });
+                                alert(errorMessage);
                             } else {
-                                submitButton.textContent = originalText;
-                                submitButton.disabled = false;
-
-                                showMessage(data.message || 'Registration failed', 'error');
-
-                                if (data.errors) {
-                                    for (let field in data.errors) {
-                                        data.errors[field].forEach(error => {
-                                            showMessage(error, 'error');
-                                        });
-                                    }
-                                }
+                                alert(data.message || 'Registration failed. Please try again.');
                             }
-                        })
-                        .catch(error => {
-                            console.error('Registration error:', error);
-                            submitButton.textContent = originalText;
-                            submitButton.disabled = false;
-                            showMessage('An error occurred. Please try again.', 'error');
-                        });
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = originalText;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Registration error:', error);
+                        alert('An error occurred. Please try again.');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalText;
+                    });
                 });
             }
         });

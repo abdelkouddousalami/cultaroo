@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Reservation;
 use App\Models\HostApplication;
+use App\Services\OTPService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -51,33 +52,35 @@ class AuthController extends Controller
         }
 
         try {
-            $user = User::create([
-                'name' => $request->first_name . ' ' . $request->last_name,
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'user_type' => $request->user_type,
-                'role' => $this->determineRole($request->user_type),
+            // Store user data in session for later use after OTP verification
+            session([
+                'pending_user_data' => [
+                    'name' => $request->first_name . ' ' . $request->last_name,
+                    'first_name' => $request->first_name,
+                    'last_name' => $request->last_name,
+                    'email' => $request->email,
+                    'password' => Hash::make($request->password),
+                    'user_type' => $request->user_type,
+                    'role' => $this->determineRole($request->user_type),
+                ]
             ]);
 
-            Auth::login($user);
-
-            // Redirect based on user role (though new registrations are unlikely to be admin)
-            $redirectRoute = $user->role === 'admin' ? 'admin.panel' : 'profile';
+            // Generate and send OTP
+            $otpService = new OTPService();
+            $otpService->generateAndSendOTP($request->email);
 
             // Check if the request expects JSON (for AJAX)
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Registration successful!',
-                    'user' => $user,
-                    'redirect' => route($redirectRoute)
+                    'message' => 'Registration initiated! Please check your email for verification code.',
+                    'redirect' => route('auth.verify-otp-page') . '?email=' . urlencode($request->email)
                 ]);
             }
             
-            // For regular form submission, use flash message
-            return redirect()->route($redirectRoute)->with('success', 'Welcome to Culturoo! Your account has been created successfully.');
+            // For regular form submission, redirect to OTP verification
+            return redirect()->route('auth.verify-otp-page', ['email' => $request->email])
+                ->with('success', 'Please check your email for verification code.');
 
         } catch (\Exception $e) {
             Log::error('Registration failed', [
@@ -617,6 +620,139 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to review host application. Please try again.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Show OTP verification page
+     */
+    public function showOtpVerification(Request $request)
+    {
+        $email = $request->get('email');
+        
+        if (!$email || !session('pending_user_data')) {
+            return redirect()->route('auth')->with('error', 'Invalid verification request.');
+        }
+
+        return view('verify-otp', ['email' => $email]);
+    }
+
+    /**
+     * Verify OTP code and complete registration
+     */
+    public function verifyOtp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'otp_code' => 'required|string|size:6',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid verification code format.'
+            ], 422);
+        }
+
+        try {
+            $otpService = new OTPService();
+            
+            // Verify OTP
+            if (!$otpService->verifyOTP($request->email, $request->otp_code)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid or expired verification code.'
+                ]);
+            }
+
+            // Get pending user data from session
+            $pendingUserData = session('pending_user_data');
+            if (!$pendingUserData || $pendingUserData['email'] !== $request->email) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid verification request.'
+                ]);
+            }
+
+            // Add email verification timestamp to user data
+            $pendingUserData['email_verified_at'] = now();
+
+            // Create the user with email verification timestamp
+            $user = User::create($pendingUserData);
+
+            // Clear pending user data
+            session()->forget('pending_user_data');
+
+            // Log the user in
+            Auth::login($user);
+
+            // Redirect based on user role
+            $redirectRoute = $user->role === 'admin' ? 'admin.panel' : 'profile';
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Email verified successfully! Welcome to Culturoo!',
+                'redirect' => route($redirectRoute),
+                'verification_time' => $user->email_verified_at->toDateTimeString()
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('OTP verification failed', [
+                'error' => $e->getMessage(),
+                'email' => $request->email
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Verification failed. Please try again.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Resend OTP code
+     */
+    public function resendOtp(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid email address.'
+            ], 422);
+        }
+
+        try {
+            // Check if there's pending user data for this email
+            $pendingUserData = session('pending_user_data');
+            if (!$pendingUserData || $pendingUserData['email'] !== $request->email) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid resend request.'
+                ]);
+            }
+
+            $otpService = new OTPService();
+            $otpService->generateAndSendOTP($request->email);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Verification code resent successfully!'
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('OTP resend failed', [
+                'error' => $e->getMessage(),
+                'email' => $request->email
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to resend verification code. Please try again.'
             ], 500);
         }
     }

@@ -188,7 +188,7 @@
             <div class="flex justify-between items-center h-20">
                 <div class="flex items-center">
                     <a href="{{ route('welcome') }}" class="flex items-center space-x-3 group">
-                        <img src="{{ asset('images/logos/logo.png') }}" alt="Culturoo" class="h-12 w-auto transition-transform duration-300 group-hover:scale-105 brand-logo">
+                        <img src="{{ asset('images/logos/logo.png') }}" alt="Culturoo" class="h-28 w-auto transition-transform duration-300 group-hover:scale-105 brand-logo">
                         <div class="hidden sm:block">
                             <h1 class="text-xl font-bold bg-gradient-to-r from-orange-600 to-orange-800 bg-clip-text text-transparent">Culturoo</h1>
                         </div>
@@ -516,6 +516,46 @@
                     @endif
                 </div>
             </div>
+        </div>
+
+        <!-- Profile Completion Section -->
+        <div class="profile-card rounded-2xl p-6 shadow-lg mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">Profile Completion</h2>
+                    <p class="text-gray-600">Complete your profile to get the most out of Culturoo</p>
+                </div>
+                
+                <!-- Circular Progress -->
+                <div class="relative">
+                    <div class="circular-progress" data-percentage="{{ Auth::user()->profile_completion['percentage'] }}">
+                        <svg class="w-20 h-20 transform -rotate-90" viewBox="0 0 36 36">
+                            <!-- Background circle -->
+                            <path class="circle-bg" stroke="currentColor" stroke-width="3" fill="none" 
+                                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <!-- Progress circle -->
+                            <path class="circle-progress" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"
+                                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <!-- Percentage text -->
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-lg font-bold percentage-text">{{ Auth::user()->profile_completion['percentage'] }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Button -->
+            @if(Auth::user()->profile_completion['percentage'] < 100)
+                <div class="mt-6 pt-6 border-t border-gray-200 text-center">
+                    <button onclick="toggleEditMode()" class="bg-orange-600 hover:bg-orange-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-300 inline-flex items-center">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Complete Profile
+                    </button>
+                </div>
+            @endif
         </div>
 
         <div class="grid lg:grid-cols-3 gap-8">
@@ -1033,6 +1073,47 @@
     @vite('resources/js/app.js')
     
     <style>
+        /* Profile Completion Styles */
+        .circular-progress {
+            position: relative;
+            display: inline-block;
+        }
+
+        .circular-progress .circle-bg {
+            color: #e5e7eb; /* gray-200 */
+        }
+
+        .circular-progress .circle-progress {
+            color: #ea580c; /* orange-600 */
+            stroke-dasharray: 100, 100;
+            stroke-dashoffset: 100;
+            transition: stroke-dashoffset 1s ease-out;
+        }
+
+        /* Gradient text for percentage */
+        .percentage-text {
+            background: linear-gradient(135deg, #ea580c, #f97316);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        /* Animation for completion */
+        @keyframes pulseGlow {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.4);
+            }
+            50% {
+                box-shadow: 0 0 0 8px rgba(234, 88, 12, 0);
+            }
+        }
+
+        .circular-progress[data-percentage="100"] {
+            animation: pulseGlow 2s infinite;
+            border-radius: 50%;
+        }
+
         /* Enhanced Navbar Styles */
         .nav-link {
             display: flex;
@@ -1278,6 +1359,47 @@
         // CSRF token setup
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         let isEditMode = false;
+
+        // Initialize circular progress on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const circularProgress = document.querySelector('.circular-progress');
+            if (circularProgress) {
+                const percentage = parseInt(circularProgress.getAttribute('data-percentage'));
+                const progressCircle = circularProgress.querySelector('.circle-progress');
+                
+                // Calculate the stroke-dashoffset based on percentage
+                const offset = 100 - percentage;
+                
+                // Animate the progress
+                setTimeout(() => {
+                    progressCircle.style.strokeDashoffset = offset;
+                }, 100);
+            }
+        });
+
+        // Function to update circular progress
+        function updateCircularProgress(percentage) {
+            const circularProgress = document.querySelector('.circular-progress');
+            const percentageText = document.querySelector('.percentage-text');
+            const progressCircle = document.querySelector('.circle-progress');
+            
+            if (circularProgress && percentageText && progressCircle) {
+                // Update percentage text
+                percentageText.textContent = percentage + '%';
+                
+                // Update data attribute
+                circularProgress.setAttribute('data-percentage', percentage);
+                
+                // Calculate and animate progress
+                const offset = 100 - percentage;
+                progressCircle.style.strokeDashoffset = offset;
+                
+                // Add completion animation if 100%
+                if (percentage === 100) {
+                    circularProgress.setAttribute('data-percentage', '100');
+                }
+            }
+        }
 
         // Toggle user dropdown menu
         function toggleUserMenu() {

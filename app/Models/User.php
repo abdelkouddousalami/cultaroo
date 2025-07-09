@@ -22,6 +22,7 @@ class User extends Authenticatable
         'first_name',
         'last_name',
         'email',
+        'email_verified_at',
         'password',
         'user_type',
         'role',
@@ -78,6 +79,24 @@ class User extends Authenticatable
     public function getAgeAttribute(): ?int
     {
         return $this->date_of_birth ? $this->date_of_birth->age : null;
+    }
+
+    /**
+     * Check if the user's email is verified.
+     */
+    public function hasVerifiedEmail(): bool
+    {
+        return !is_null($this->email_verified_at);
+    }
+
+    /**
+     * Get the email verification status as a human-readable string.
+     */
+    public function getEmailVerificationStatusAttribute(): string
+    {
+        return $this->hasVerifiedEmail() 
+            ? 'Verified on ' . $this->email_verified_at->format('M d, Y \a\t H:i')
+            : 'Not Verified';
     }
 
     /**
@@ -226,5 +245,61 @@ class User extends Authenticatable
     public function scopeRole($query, $role)
     {
         return $query->where('role', $role);
+    }
+
+    /**
+     * Calculate profile completion percentage.
+     */
+    public function getProfileCompletionAttribute(): array
+    {
+        $fields = [
+            'first_name' => 'First Name',
+            'last_name' => 'Last Name',
+            'phone' => 'Phone Number',
+            'bio' => 'Bio',
+            'country' => 'Country',
+            'city' => 'City',
+            'date_of_birth' => 'Date of Birth',
+            'gender' => 'Gender',
+            'languages' => 'Languages',
+            'interests' => 'Interests',
+            'profile_picture' => 'Profile Picture',
+        ];
+
+        $completed = [];
+        $missing = [];
+        $completedCount = 0;
+        $totalFields = count($fields);
+
+        foreach ($fields as $field => $label) {
+            $value = $this->$field;
+            
+            // Check if field has a value
+            $hasValue = false;
+            if (is_array($value)) {
+                $hasValue = !empty($value);
+            } elseif (is_string($value)) {
+                $hasValue = !empty(trim($value));
+            } else {
+                $hasValue = !is_null($value);
+            }
+
+            if ($hasValue) {
+                $completed[] = $label;
+                $completedCount++;
+            } else {
+                $missing[] = $label;
+            }
+        }
+
+        $percentage = round(($completedCount / $totalFields) * 100);
+
+        return [
+            'percentage' => $percentage,
+            'completed_count' => $completedCount,
+            'total_count' => $totalFields,
+            'completed_fields' => $completed,
+            'missing_fields' => $missing,
+        ];
     }
 }
