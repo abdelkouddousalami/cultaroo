@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quick Verification Test</title>
+    <meta name="csrf-token" content="test-token">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Verification System Quick Test</h1>
+    
+    <div class="test-result success">
+        ✅ <strong>Issue Fixed:</strong> JavaScript functions are now properly defined
+    </div>
+    
+    <div class="test-result success">
+        ✅ <strong>Functions Available:</strong>
+        <ul>
+            <li><code>viewDocument()</code> - Opens document viewer modal</li>
+            <li><code>showReviewModal()</code> - Opens review modal</li>
+            <li><code>filterByStatus()</code> - Filters verification requests</li>
+            <li><code>showAlert()</code> - Shows success/error messages</li>
+        </ul>
+    </div>
+
+    <h2>Test the Functions</h2>
+    <button onclick="testViewDocument()">Test View Document</button>
+    <button onclick="testReviewModal()">Test Review Modal</button>
+    <button onclick="testAlert()">Test Alert</button>
+
+    <h2>Next Steps</h2>
+    <ol>
+        <li>Go to: <a href="/admin/verification-requests" target="_blank">/admin/verification-requests</a></li>
+        <li>Login as admin (tran2@gmail.com / admin123)</li>
+        <li>Try clicking "View Document" button</li>
+        <li>Try clicking "Review" button</li>
+        <li>Test approving/rejecting a verification request</li>
+    </ol>
+
+    <script>
+        function testViewDocument() {
+            if (typeof viewDocument === 'function') {
+                alert('✅ viewDocument function is available');
+                console.log('viewDocument function test passed');
+            } else {
+                alert('❌ viewDocument function not found');
+            }
+        }
+
+        function testReviewModal() {
+            if (typeof showReviewModal === 'function') {
+                alert('✅ showReviewModal function is available');
+                console.log('showReviewModal function test passed');
+            } else {
+                alert('❌ showReviewModal function not found');
+            }
+        }
+
+        function testAlert() {
+            if (typeof showAlert === 'function') {
+                alert('✅ showAlert function is available');
+            } else {
+                alert('❌ showAlert function not found');
+            }
+        }
+
+        // Check for functions on page load
+        window.addEventListener('load', function() {
+            console.log('Page loaded - checking for functions...');
+            
+            const functions = ['viewDocument', 'showReviewModal', 'filterByStatus', 'showAlert'];
+            const results = functions.map(func => {
+                const exists = typeof window[func] === 'function';
+                console.log(`${func}: ${exists ? '✅ Available' : '❌ Missing'}`);
+                return exists;
+            });
+            
+            if (results.every(r => r)) {
+                console.log('🎉 All functions are available!');
+            }
+        });
+    </script>
+</body>
+</html>

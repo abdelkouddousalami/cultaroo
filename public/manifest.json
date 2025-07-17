@@ -8,6 +8,11 @@
     "theme_color": "#8B4513",
     "icons": [
         {
+            "src": "/images/logos/cultaroo.svg",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        },
+        {
             "src": "/images/logos/logo.png",
             "sizes": "192x192",
             "type": "image/png"

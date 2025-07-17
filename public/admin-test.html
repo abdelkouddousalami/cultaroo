@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .card { background: #f9f9f9; padding: 20px; margin: 10px 0; border-radius: 8px; }
+        .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>Admin Access Test</h1>
+    
+    <div class="card info">
+        <h2>Current User Status</h2>
+        <p><strong>Current Time:</strong> <?php echo date('Y-m-d H:i:s'); ?></p>
+        
+        <?php
+        // Check if user is logged in
+        if (isset($_COOKIE['laravel_session'])) {
+            echo '<p><strong>Session Cookie:</strong> Present</p>';
+        } else {
+            echo '<p><strong>Session Cookie:</strong> Not found</p>';
+        }
+        ?>
+    </div>
+
+    <div class="card info">
+        <h2>Admin Login Instructions</h2>
+        <ol>
+            <li>Go to <a href="/auth">/auth</a> or <a href="/login">/login</a></li>
+            <li>Log in with these credentials:
+                <ul>
+                    <li><strong>Email:</strong> tran2@gmail.com</li>
+                    <li><strong>Password:</strong> admin123</li>
+                </ul>
+            </li>
+            <li>After login, go to <a href="/admin">/admin</a></li>
+            <li>Click on "View All Requests →" in the Verification Requests card</li>
+            <li>Or go directly to <a href="/admin/verification-requests">/admin/verification-requests</a></li>
+        </ol>
+    </div>
+
+    <div class="card success">
+        <h2>Verification Data Summary</h2>
+        <p><strong>Total Verification Requests:</strong> 1</p>
+        <p><strong>Pending Requests:</strong> 1</p>
+        <p><strong>User:</strong> train train (train@gmail.com)</p>
+        <p><strong>Document Type:</strong> Carte Nationale</p>
+        <p><strong>Status:</strong> pending</p>
+        <p><strong>Submitted:</strong> 2025-07-17 09:12:34</p>
+    </div>
+
+    <div class="card">
+        <h2>Quick Links</h2>
+        <p><a href="/auth">Login Page</a></p>
+        <p><a href="/admin">Admin Dashboard</a></p>
+        <p><a href="/admin/verification-requests">Verification Requests</a></p>
+        <p><a href="/profile">Profile Page</a></p>
+    </div>
+</body>
+</html>

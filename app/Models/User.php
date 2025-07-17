@@ -174,6 +174,38 @@ class User extends Authenticatable
     }
 
     /**
+     * Get all verification requests for the user.
+     */
+    public function verificationRequests()
+    {
+        return $this->hasMany(VerificationRequest::class);
+    }
+
+    /**
+     * Get the latest verification request for the user.
+     */
+    public function latestVerificationRequest()
+    {
+        return $this->hasOne(VerificationRequest::class)->latestOfMany();
+    }
+
+    /**
+     * Check if user has a verification request.
+     */
+    public function hasVerificationRequest(): bool
+    {
+        return $this->verificationRequests()->exists();
+    }
+
+    /**
+     * Check if user is identity verified.
+     */
+    public function isIdentityVerified(): bool
+    {
+        return $this->verificationRequests()->where('status', 'approved')->exists();
+    }
+
+    /**
      * Check if user has submitted a host application.
      */
     public function hasHostApplication(): bool

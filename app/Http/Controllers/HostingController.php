@@ -196,7 +196,22 @@ class HostingController extends Controller
             }
         }
 
-        $announcements = $query->latest()->paginate(12);
+        // Apply sorting
+        $sort = $request->get('sort', 'latest');
+        switch ($sort) {
+            case 'price_low':
+                $query->orderBy('price_per_night', 'asc');
+                break;
+            case 'price_high':
+                $query->orderBy('price_per_night', 'desc');
+                break;
+            case 'latest':
+            default:
+                $query->latest();
+                break;
+        }
+
+        $announcements = $query->paginate(12);
 
         // Get unique cities for filter dropdown
         $cities = HostingAnnouncement::where('is_active', true)

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JavaScript Test - Verification Functions</title>
+    <meta name="csrf-token" content="test-token-123">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; line-height: 1.6; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; background: #007cba; color: white; border: none; border-radius: 4px; }
+        button:hover { background: #005a8b; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1000; }
+        .modal-content { position: relative; top: 50px; margin: 0 auto; padding: 20px; background: white; width: 80%; max-width: 600px; border-radius: 8px; }
+        .close { float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: red; }
+        textarea, select, input { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px; }
+        #test-output { background: #f5f5f5; padding: 10px; border-radius: 4px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>Verification System JavaScript Test</h1>
+    
+    <div class="test-section">
+        <h2>CSRF Token Test</h2>
+        <button onclick="testCSRF()">Test CSRF Token</button>
+        <div id="csrf-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Document Viewer Test</h2>
+        <button onclick="testViewDocument()">Test View PDF Document</button>
+        <button onclick="testViewImage()">Test View Image Document</button>
+        <button onclick="testViewInvalidDocument()">Test Invalid Document</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Review Modal Test</h2>
+        <button onclick="testReviewModal()">Test Review Modal</button>
+    </div>
+
+    <div class="test-section">
+        <h2>API Fetch Test</h2>
+        <button onclick="testFetchAPI()">Test PUT Request</button>
+        <div id="fetch-result"></div>
+    </div>
+
+    <div id="test-output"></div>
+
+    <!-- Document Modal -->
+    <div id="documentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeDocumentModal()">&times;</span>
+            <h3>Document Preview</h3>
+            <div id="documentContent"></div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div id="reviewModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeReviewModal()">&times;</span>
+            <h3>Review Verification Request</h3>
+            <form id="reviewForm">
+                <input type="hidden" id="requestId" name="request_id">
+                
+                <label>User:</label>
+                <p id="userName"></p>
+
+                <label>Decision:</label>
+                <select name="status">
+                    <option value="approved">Approve</option>
+                    <option value="rejected">Reject</option>
+                </select>
+
+                <label>Admin Notes (optional):</label>
+                <textarea name="admin_notes" rows="3" placeholder="Add any notes about this decision..."></textarea>
+
+                <div style="text-align: right; margin-top: 15px;">
+                    <button type="button" onclick="closeReviewModal()">Cancel</button>
+                    <button type="submit">Submit Review</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const output = document.getElementById('test-output');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : (type === 'success' ? 'success' : '');
+            output.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        function testCSRF() {
+            const token = document.querySelector('meta[name="csrf-token"]');
+            const result = document.getElementById('csrf-result');
+            
+            if (token) {
+                const tokenValue = token.getAttribute('content');
+                result.innerHTML = `<span class="success">✅ CSRF token found: ${tokenValue}</span>`;
+                log('CSRF token test: SUCCESS', 'success');
+            } else {
+                result.innerHTML = `<span class="error">❌ CSRF token not found</span>`;
+                log('CSRF token test: FAILED', 'error');
+            }
+        }
+
+        function testViewDocument() {
+            log('Testing PDF document viewer...');
+            viewDocument('https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf');
+        }
+
+        function testViewImage() {
+            log('Testing image document viewer...');
+            viewDocument('https://via.placeholder.com/400x300.jpg');
+        }
+
+        function testViewInvalidDocument() {
+            log('Testing invalid document...');
+            viewDocument('');
+        }
+
+        function testReviewModal() {
+            log('Testing review modal...');
+            showReviewModal(123, 'John Doe Test User');
+        }
+
+        function testFetchAPI() {
+            log('Testing fetch API...');
+            const result = document.getElementById('fetch-result');
+            result.innerHTML = 'Testing API...';
+
+            // Test data
+            const testData = {
+                status: 'approved',
+                admin_notes: 'Test notes',
+                _token: 'test-token-123'
+            };
+
+            fetch('/test-endpoint', {
+                method: 'PUT',
+                body: JSON.stringify(testData),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': 'test-token-123',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                log(`Fetch response status: ${response.status}`, response.ok ? 'success' : 'error');
+                result.innerHTML = `<span class="${response.ok ? 'success' : 'error'}">Status: ${response.status}</span>`;
+                return response.text();
+            })
+            .then(data => {
+                log(`Response data: ${data.substring(0, 100)}...`);
+            })
+            .catch(error => {
+                log(`Fetch error: ${error.message}`, 'error');
+                result.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            });
+        }
+
+        function viewDocument(documentUrl) {
+            log(`Attempting to view document: ${documentUrl}`);
+            
+            const modal = document.getElementById('documentModal');
+            const content = document.getElementById('documentContent');
+            
+            if (!documentUrl || documentUrl === '') {
+                log('Document URL is empty or invalid', 'error');
+                alert('Document URL is not available');
+                return;
+            }
+            
+            if (documentUrl.toLowerCase().includes('.pdf')) {
+                log('Loading PDF document...');
+                content.innerHTML = `
+                    <div style="text-align: center;">
+                        <embed src="${documentUrl}" type="application/pdf" width="100%" height="400px" style="min-height: 400px;" />
+                        <p style="margin-top: 10px;">
+                            <a href="${documentUrl}" target="_blank" style="color: blue; text-decoration: underline;">
+                                Open in new tab if preview doesn't work
+                            </a>
+                        </p>
+                    </div>
+                `;
+            } else {
+                log('Loading image document...');
+                content.innerHTML = `
+                    <div style="text-align: center;">
+                        <img src="${documentUrl}" 
+                             alt="Document" 
+                             style="max-width: 100%; height: auto; border-radius: 8px;"
+                             onload="log('Image loaded successfully', 'success')"
+                             onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='block'; log('Image failed to load', 'error');" />
+                        <div style="display: none; color: red; padding: 10px; border: 1px solid red; border-radius: 4px; background: #ffe6e6;">
+                            <p><strong>Unable to load image</strong></p>
+                            <p>
+                                <a href="${documentUrl}" target="_blank" style="color: blue; text-decoration: underline;">
+                                    Click here to view document directly
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            modal.style.display = 'block';
+            log('Document modal opened', 'success');
+        }
+
+        function closeDocumentModal() {
+            document.getElementById('documentModal').style.display = 'none';
+            log('Document modal closed');
+        }
+
+        function showReviewModal(requestId, userName) {
+            log(`Opening review modal for user: ${userName} (ID: ${requestId})`);
+            document.getElementById('requestId').value = requestId;
+            document.getElementById('userName').textContent = userName;
+            document.getElementById('reviewModal').style.display = 'block';
+            log('Review modal opened', 'success');
+        }
+
+        function closeReviewModal() {
+            document.getElementById('reviewModal').style.display = 'none';
+            document.getElementById('reviewForm').reset();
+            log('Review modal closed');
+        }
+
+        // Handle review form submission
+        document.getElementById('reviewForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            log('Review form submitted');
+            
+            const formData = new FormData(this);
+            const requestId = document.getElementById('requestId').value;
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            
+            const status = formData.get('status');
+            const adminNotes = formData.get('admin_notes');
+            
+            log(`Form data - Status: ${status}, Notes: ${adminNotes}`);
+            
+            submitBtn.textContent = 'Processing...';
+            submitBtn.disabled = true;
+            
+            try {
+                const requestData = {
+                    status: status,
+                    admin_notes: adminNotes,
+                    _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                };
+                
+                log(`Sending PUT request to: /admin/verification-requests/${requestId}`);
+                log(`Request data: ${JSON.stringify(requestData)}`);
+                
+                const response = await fetch(`/admin/verification-requests/${requestId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify(requestData),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                log(`Response status: ${response.status}`, response.ok ? 'success' : 'error');
+                
+                const data = await response.json();
+                log(`Response data: ${JSON.stringify(data)}`);
+                
+                if (response.ok && data.success) {
+                    log('Verification request updated successfully!', 'success');
+                    alert('Verification request updated successfully!');
+                    closeReviewModal();
+                } else {
+                    log(`Error: ${data.message || 'An error occurred'}`, 'error');
+                    alert('Error: ' + (data.message || 'An error occurred'));
+                }
+            } catch (error) {
+                log(`Fetch error: ${error.message}`, 'error');
+                alert('Error: An error occurred while updating the request');
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Page loaded, running tests...');
+            testCSRF();
+        });
+    </script>
+</body>
+</html>

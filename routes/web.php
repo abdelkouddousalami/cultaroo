@@ -8,6 +8,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HostingController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CityController;
+use App\Http\Controllers\VerificationController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -24,18 +25,6 @@ Route::get('/our-book', function () {
 })->name('our-book');
 
 Route::get('/city/{city}', [CityController::class, 'show'])->name('city.show');
-
-Route::get('/test-host-app', function () {
-    return view('test-host-application');
-})->middleware('auth');
-
-Route::get('/simple-test', function () {
-    return view('simple-test');
-})->middleware('auth');
-
-Route::get('/test-route', function () {
-    return response()->json(['success' => true, 'message' => 'Test route working']);
-})->middleware('auth');
 
 // Debug route to test host application endpoint
 Route::post('/test-host-endpoint', function(Request $request) {
@@ -69,6 +58,10 @@ Route::middleware('auth')->group(function () {
     // Message routes
     Route::post('/messages', [HostingController::class, 'sendDirectMessage'])->name('messages.send');
     
+    // Verification routes
+    Route::post('/verification/submit', [VerificationController::class, 'store'])->name('verification.store');
+    Route::get('/verification/status', [VerificationController::class, 'status'])->name('verification.status');
+    
     // Booking routes
     Route::post('/bookings', [HostingController::class, 'storeBooking'])->name('bookings.store');
     Route::post('/listings/{announcement}/book', [HostingController::class, 'bookAnnouncement'])->name('listings.book');
@@ -82,73 +75,30 @@ Route::middleware('auth')->group(function () {
         Route::get('/host/announcements/create', [HostingController::class, 'showCreateAnnouncement'])->name('host.announcements.create');
         Route::post('/host/announcements', [HostingController::class, 'storeAnnouncement'])->name('host.announcements.store');
     });
-    
-    // Test route for debugging
-    Route::get('/test/host-create', function () {
-        return view('host.create-announcement');
-    })->name('test.host.create');
-    
     // Admin routes
     Route::middleware('admin')->group(function () {
         Route::get('/admin', [AuthController::class, 'showAdminPanel'])->name('admin.panel');
         Route::post('/admin/users/{user}/role', [AuthController::class, 'updateUserRole'])->name('admin.update-role');
         Route::post('/admin/host-applications/{hostApplication}/review', [AuthController::class, 'reviewHostApplication'])->name('admin.review-host-application');
+        
+        // Debug route
+        Route::get('/admin/debug', function() {
+            return view('admin.debug');
+        })->name('admin.debug');
+        
+        Route::get('/admin/verification-debug', function() {
+            return view('admin.verification-debug');
+        })->name('admin.verification-debug');
+        
+        Route::get('/admin/login-test', function() {
+            return view('admin.login-test');
+        })->name('admin.login-test');
+        
+        // Admin verification routes
+        Route::get('/admin/verification-requests', [VerificationController::class, 'adminIndex'])->name('admin.verification-requests');
+        Route::put('/admin/verification-requests/{verificationRequest}', [VerificationController::class, 'adminUpdate'])->name('admin.verification-requests.update');
     });
 });
 
-// Public routes
 Route::get('/listings', [HostingController::class, 'showListings'])->name('listings.index');
 Route::get('/listings/{announcement}', [HostingController::class, 'showAnnouncement'])->name('listings.show');
-
-// Test email route (remove this after testing)
-Route::get('/test-mail-config', function () {
-    try {
-        $testEmail = 'abdoalami.ru@gmail.com';
-        Mail::raw('This is a test email from Culturoo to verify SMTP configuration.', function ($message) use ($testEmail) {
-            $message->to($testEmail)
-                    ->subject('Culturoo SMTP Test')
-                    ->from('abdoalami.ru@gmail.com', 'Culturoo');
-        });
-        
-        return response()->json([
-            'success' => true,
-            'message' => 'Test email sent successfully to ' . $testEmail
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Failed to send email: ' . $e->getMessage()
-        ]);
-    }
-});
-
-// Test route to check user email verification status (remove after testing)
-Route::get('/test-verification-status/{email}', function ($email) {
-    try {
-        $user = \App\Models\User::where('email', $email)->first();
-        
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not found'
-            ]);
-        }
-        
-        return response()->json([
-            'success' => true,
-            'user' => [
-                'email' => $user->email,
-                'name' => $user->name,
-                'email_verified_at' => $user->email_verified_at ? $user->email_verified_at->toDateTimeString() : null,
-                'is_verified' => $user->hasVerifiedEmail(),
-                'verification_status' => $user->email_verification_status,
-                'created_at' => $user->created_at->toDateTimeString()
-            ]
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'Error: ' . $e->getMessage()
-        ]);
-    }
-});

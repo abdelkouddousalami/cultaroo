@@ -73,7 +73,7 @@
             <div class="flex justify-between items-center h-20">
                 <div class="flex items-center">
                     <a href="{{ route('welcome') }}">
-                        <img src="{{ asset('images/logos/logo.png') }}" alt="Culturoo" class="h-16 w-auto">
+                        <img src="{{ asset('images/logos/cultaroo.svg') }}" alt="Culturoo" class="h-8 w-auto">
                     </a>
                 </div>
                 <div class="flex items-center space-x-6">

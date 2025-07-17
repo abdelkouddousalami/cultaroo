@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Reservation;
 use App\Models\HostApplication;
+use App\Models\VerificationRequest;
 use App\Services\OTPService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -528,7 +529,7 @@ class AuthController extends Controller
      */
     public function showAdminPanel()
     {
-        $users = User::orderBy('created_at', 'desc')->paginate(20);
+        $users = User::with('verificationRequests')->orderBy('created_at', 'desc')->paginate(20);
         $hostApplications = HostApplication::with('user')->orderBy('created_at', 'desc')->paginate(10);
         
         // Dashboard statistics
@@ -541,6 +542,10 @@ class AuthController extends Controller
             'approved_applications' => HostApplication::where('status', 'approved')->count(),
             'rejected_applications' => HostApplication::where('status', 'rejected')->count(),
             'total_applications' => HostApplication::count(),
+            'pending_verifications' => VerificationRequest::where('status', 'pending')->count(),
+            'approved_verifications' => VerificationRequest::where('status', 'approved')->count(),
+            'rejected_verifications' => VerificationRequest::where('status', 'rejected')->count(),
+            'total_verifications' => VerificationRequest::count(),
             'recent_users' => User::where('created_at', '>=', now()->subDays(7))->count(),
             'recent_applications' => HostApplication::where('created_at', '>=', now()->subDays(7))->count(),
         ];

@@ -118,7 +118,7 @@
             <div class="flex justify-between items-center h-20">
                 <div class="flex items-center">
                     <a href="{{ route('welcome') }}">
-                        <img src="{{ asset('images/logos/logo.png') }}" alt="Culturoo" class="h-16 w-auto">
+                        <img src="{{ asset('images/logos/cultaroo.svg') }}" alt="Culturoo" class="h-8 w-auto">
                     </a>
                 </div>
                 <div class="flex items-center space-x-6">
@@ -128,7 +128,14 @@
                     <div class="relative dropdown-wrapper">
                         <button onclick="toggleUserMenu()" class="flex items-center space-x-2 text-gray-700 hover:text-orange-600 transition-colors duration-300 p-2 rounded-lg hover:bg-orange-50">
                             <div class="text-right mr-2">
-                                <p class="text-sm font-medium text-gray-900">{{ Auth::user()->first_name ?? Auth::user()->name }}</p>
+                                <div class="flex items-center space-x-1">
+                                    <p class="text-sm font-medium text-gray-900">{{ Auth::user()->first_name ?? Auth::user()->name }}</p>
+                                    @if(Auth::user()->isIdentityVerified())
+                                        <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    @endif
+                                </div>
                                 <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full font-medium">
                                     Admin
                                 </span>
@@ -149,12 +156,24 @@
                         <div id="user-menu" class="absolute right-0 mt-2 w-[250px] bg-white rounded-xl shadow-2xl border-2 border-red-200 py-3 hidden" style="z-index: 9999; position: absolute; transform: translateZ(0); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
                             <!-- User Info Section -->
                             <div class="px-4 py-3 border-b border-gray-200">
-                                <p class="font-medium text-gray-900 text-base">{{ Auth::user()->first_name ?? Auth::user()->name }} {{ Auth::user()->last_name }}</p>
+                                <div class="flex items-center space-x-2">
+                                    <p class="font-medium text-gray-900 text-base">{{ Auth::user()->first_name ?? Auth::user()->name }} {{ Auth::user()->last_name }}</p>
+                                    @if(Auth::user()->isIdentityVerified())
+                                        <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    @endif
+                                </div>
                                 <p class="text-sm text-gray-500 mt-1">{{ Auth::user()->email }}</p>
-                                <div class="mt-2">
+                                <div class="mt-2 flex items-center space-x-2">
                                     <span class="text-sm bg-red-100 text-red-800 px-3 py-1 rounded-full font-medium">
                                         Admin Panel
                                     </span>
+                                    @if(Auth::user()->isIdentityVerified())
+                                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">
+                                            Verified
+                                        </span>
+                                    @endif
                                 </div>
                             </div>
 
@@ -225,7 +244,7 @@
         </div>
 
         <!-- Quick Actions -->
-        <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
             <div class="admin-card rounded-2xl p-6 shadow-lg">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Host Applications Overview</h3>
                 <div class="space-y-3">
@@ -246,6 +265,36 @@
                             <span class="text-sm font-medium text-gray-900">Total Applications</span>
                             <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">{{ $stats['total_applications'] }}</span>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card rounded-2xl p-6 shadow-lg">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Verification Requests</h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Pending Verification</span>
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                            {{ $stats['pending_verifications'] ?? 0 }}
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Approved</span>
+                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                            {{ $stats['approved_verifications'] ?? 0 }}
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Rejected</span>
+                        <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
+                            {{ $stats['rejected_verifications'] ?? 0 }}
+                        </span>
+                    </div>
+                    <div class="pt-2 border-t border-gray-200">
+                        <a href="{{ route('admin.verification-requests') }}" 
+                           class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                            View All Requests →
+                        </a>
                     </div>
                 </div>
             </div>
@@ -302,8 +351,20 @@
                                             @endif
                                         </div>
                                         <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900">
-                                                {{ $user->first_name ?? $user->name }} {{ $user->last_name }}
+                                            <div class="flex items-center space-x-2">
+                                                <div class="text-sm font-medium text-gray-900">
+                                                    {{ $user->first_name ?? $user->name }} {{ $user->last_name }}
+                                                </div>
+                                                @if($user->isIdentityVerified())
+                                                    <div class="flex items-center">
+                                                        <svg class="w-4 h-4 text-blue-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                                        </svg>
+                                                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">
+                                                            Verified
+                                                        </span>
+                                                    </div>
+                                                @endif
                                             </div>
                                             @if($user->country)
                                                 <div class="text-sm text-gray-500">{{ $user->country }}</div>

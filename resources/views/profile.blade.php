@@ -81,7 +81,6 @@
             color: white;
         }
 
-        /* Enhanced Navbar Styles */
         .nav-link {
             @apply flex items-center px-3 py-2 text-sm font-medium text-gray-700 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-all duration-300;
         }
@@ -188,9 +187,8 @@
             <div class="flex justify-between items-center h-20">
                 <div class="flex items-center">
                     <a href="{{ route('welcome') }}" class="flex items-center space-x-3 group">
-                        <img src="{{ asset('images/logos/logo.png') }}" alt="Culturoo" class="h-28 w-auto transition-transform duration-300 group-hover:scale-105 brand-logo">
+                    <img src="{{ asset('images/logos/cultaroo.svg') }}" alt="Culturoo" class="h-8 w-auto">
                         <div class="hidden sm:block">
-                            <h1 class="text-xl font-bold bg-gradient-to-r from-orange-600 to-orange-800 bg-clip-text text-transparent">Culturoo</h1>
                         </div>
                     </a>
                 </div>
@@ -249,7 +247,18 @@
                             <div class="py-2">
                                 <!-- Edit Profile -->
                                 <button onclick="toggleEditMode(); toggleUserMenu();" class="dropdown-item w-full text-left font-medium text-base py-3">
+                                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
                                     Edit Info
+                                </button>
+                                
+                                <!-- Change Password -->
+                                <button onclick="openPasswordModal(); toggleUserMenu();" class="dropdown-item w-full text-left font-medium text-base py-3">
+                                    <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                    </svg>
+                                    Change Password
                                 </button>
                             </div>
 
@@ -305,11 +314,25 @@
                     <div class="border-t border-gray-200 pt-3 mt-3">
                         <!-- User Info -->
                         <div class="mb-4 p-3 bg-white rounded-lg border border-orange-100">
-                            <p class="font-medium text-gray-900 text-lg">{{ Auth::user()->first_name ?? Auth::user()->name }} {{ Auth::user()->last_name }}</p>
+                            <div class="flex items-center space-x-2 mb-2">
+                                <p class="font-medium text-gray-900 text-lg">{{ Auth::user()->first_name ?? Auth::user()->name }} {{ Auth::user()->last_name }}</p>
+                                @if(Auth::user()->isIdentityVerified())
+                                    <svg class="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                @endif
+                            </div>
                             <p class="text-sm text-gray-500 mb-2">{{ Auth::user()->email }}</p>
-                            <span class="text-sm bg-{{ Auth::user()->role_color ?? 'orange' }}-100 text-{{ Auth::user()->role_color ?? 'orange' }}-800 px-3 py-1 rounded-full font-medium">
-                                {{ Auth::user()->role_display }}
-                            </span>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm bg-{{ Auth::user()->role_color ?? 'orange' }}-100 text-{{ Auth::user()->role_color ?? 'orange' }}-800 px-3 py-1 rounded-full font-medium">
+                                    {{ Auth::user()->role_display }}
+                                </span>
+                                @if(Auth::user()->isIdentityVerified())
+                                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">
+                                        Verified
+                                    </span>
+                                @endif
+                            </div>
                         </div>
                         
                         <button onclick="toggleEditMode(); toggleMobileMenu();" class="w-full py-3 px-4 rounded-lg text-left bg-orange-50 text-orange-700 hover:bg-orange-100 font-medium mb-3 flex items-center justify-center text-lg">
@@ -370,7 +393,7 @@
         <div class="bg-white h-full w-4/5 max-w-sm py-6 px-4 overflow-y-auto shadow-xl">
             <div class="flex items-center justify-between mb-6 border-b border-gray-200 pb-3">
                 <div class="flex items-center space-x-3">
-                    <img src="{{ asset('images/logos/logo.png') }}" alt="Culturoo" class="h-28 w-auto">
+                    <img src="{{ asset('images/logos/cultaroo.svg') }}" alt="Culturoo" class="h-8 w-auto">
                 </div>
                 <button onclick="toggleMobileMenu()" class="p-2 rounded-lg text-gray-600 hover:bg-gray-100">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -487,9 +510,16 @@
                 <div class="text-center md:text-left flex-1">
                     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                         <div>
-                            <h1 class="text-3xl font-['Playfair_Display'] font-bold gradient-text mb-2">
-                                {{ Auth::user()->first_name }} {{ Auth::user()->last_name }}
-                            </h1>
+                            <div class="flex items-center space-x-2 mb-2">
+                                <h1 class="text-3xl font-['Playfair_Display'] font-bold gradient-text">
+                                    {{ Auth::user()->first_name }} {{ Auth::user()->last_name }}
+                                </h1>
+                                @if(Auth::user()->isIdentityVerified())
+                                    <svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                @endif
+                            </div>
                             <p class="text-gray-600 mb-2">{{ Auth::user()->email }}</p>
                         </div>
                     </div>
@@ -500,6 +530,14 @@
                         <span class="bg-{{ Auth::user()->role_color }}-100 text-{{ Auth::user()->role_color }}-800 px-3 py-1 rounded-full text-sm font-medium">
                             {{ Auth::user()->role_display }}
                         </span>
+                        @if(Auth::user()->isIdentityVerified())
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium flex items-center space-x-1">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>Verified Identity</span>
+                            </span>
+                        @endif
                         @if(Auth::user()->country)
                             <span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
                                 {{ Auth::user()->country }}
@@ -557,6 +595,116 @@
                 </div>
             @endif
         </div>
+
+        <!-- Profile Verification Section - Only show if user is not verified -->
+        @if(!Auth::user()->isIdentityVerified())
+            <div class="profile-card rounded-2xl shadow-lg overflow-hidden mb-8">
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6">
+                    <h2 class="text-2xl font-bold text-white">Profile Verification</h2>
+                    <p class="text-blue-100">Verify your identity to unlock more features</p>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <div class="flex items-center mb-2">
+                                @if(Auth::user()->hasVerificationRequest())
+                                    @php
+                                        $latestRequest = Auth::user()->latestVerificationRequest;
+                                    @endphp
+                                    @if($latestRequest->status === 'pending')
+                                        <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
+                                            <svg class="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-yellow-600">Verification Pending</h3>
+                                            <p class="text-sm text-gray-600">Your verification request is being reviewed</p>
+                                            <p class="text-xs text-gray-500 mt-1">
+                                                Submitted {{ $latestRequest->created_at->diffForHumans() }} 
+                                                • Document: {{ $latestRequest->document_type_display }}
+                                            </p>
+                                        </div>
+                                    @elseif($latestRequest->status === 'rejected')
+                                        <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                                            <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-red-600">Verification Rejected</h3>
+                                            <p class="text-sm text-gray-600">Your verification request was not approved</p>
+                                            @if($latestRequest->admin_notes)
+                                                <p class="text-xs text-gray-500 mt-1">Admin note: {{ $latestRequest->admin_notes }}</p>
+                                            @endif
+                                        </div>
+                                    @endif
+                                @else
+                                    <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mr-3">
+                                        <svg class="w-5 h-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-gray-900">Verification Required</h3>
+                                        <p class="text-sm text-gray-600">Upload your ID document to verify your identity</p>
+                                    </div>
+                                @endif
+                            </div>
+                            @if(!Auth::user()->hasVerificationRequest())
+                                <div class="mt-2">
+                                    <p class="text-sm text-gray-500">Benefits of verification:</p>
+                                    <ul class="text-sm text-gray-500 mt-1 space-y-1">
+                                        <li class="flex items-center">
+                                            <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            Increased trust with hosts and guests
+                                        </li>
+                                        <li class="flex items-center">
+                                            <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            Access to premium features
+                                        </li>
+                                        <li class="flex items-center">
+                                            <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                            </svg>
+                                            Higher booking acceptance rate
+                                        </li>
+                                    </ul>
+                                </div>
+                            @endif
+                        </div>
+                        @php
+                            $latestRequest = Auth::user()->latestVerificationRequest;
+                        @endphp
+                        @if(!$latestRequest || $latestRequest->status === 'rejected')
+                            <button onclick="openVerificationModal()" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-8 py-3 rounded-lg font-medium transition-all duration-300 inline-flex items-center shadow-lg hover:shadow-xl transform hover:scale-105">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                </svg>
+                                {{ $latestRequest && $latestRequest->status === 'rejected' ? 'Resubmit Verification' : 'Verify Identity' }}
+                            </button>
+                        @elseif($latestRequest->status === 'pending')
+                            <div class="text-center">
+                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 inline-block">
+                                    <div class="flex items-center">
+                                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-yellow-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        <span class="text-yellow-800 font-medium">Under Review</span>
+                                    </div>
+                                    <p class="text-yellow-700 text-sm mt-1">We'll notify you once your verification is complete</p>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @endif
 
         <div class="grid lg:grid-cols-3 gap-8">
             <!-- User Information Panel -->
@@ -702,37 +850,6 @@
                     </div>
                 </div>
 
-                <!-- Change Password Section -->
-                <div class="profile-card rounded-2xl shadow-lg overflow-hidden">
-                    <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6">
-                        <h2 class="text-2xl font-bold">Change Password</h2>
-                    </div>
-                    <div class="p-8">
-                        <form id="password-form">
-                            @csrf
-                            <div class="max-w-md space-y-6">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
-                                    <input type="password" name="current_password" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-300">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
-                                    <input type="password" name="new_password" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-300">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
-                                    <input type="password" name="new_password_confirmation" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors duration-300">
-                                </div>
-                                <button type="submit" class="btn-moroccan text-white px-8 py-3 rounded-lg font-medium inline-flex items-center">
-                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                                    </svg>
-                                    Change Password
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
             </div>
 
             <!-- My Bookings Panel -->
@@ -1071,807 +1188,10 @@
     </div>
 
     @vite('resources/js/app.js')
+    <link rel="stylesheet" href="{{ asset('css/profile.css') }}">/antml:parameter>
+</invoke>
     
-    <style>
-        /* Profile Completion Styles */
-        .circular-progress {
-            position: relative;
-            display: inline-block;
-        }
-
-        .circular-progress .circle-bg {
-            color: #e5e7eb; /* gray-200 */
-        }
-
-        .circular-progress .circle-progress {
-            color: #ea580c; /* orange-600 */
-            stroke-dasharray: 100, 100;
-            stroke-dashoffset: 100;
-            transition: stroke-dashoffset 1s ease-out;
-        }
-
-        /* Gradient text for percentage */
-        .percentage-text {
-            background: linear-gradient(135deg, #ea580c, #f97316);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 700;
-        }
-
-        /* Animation for completion */
-        @keyframes pulseGlow {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.4);
-            }
-            50% {
-                box-shadow: 0 0 0 8px rgba(234, 88, 12, 0);
-            }
-        }
-
-        .circular-progress[data-percentage="100"] {
-            animation: pulseGlow 2s infinite;
-            border-radius: 50%;
-        }
-
-        /* Enhanced Navbar Styles */
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 0.5rem 0.75rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: #374151;
-            border-radius: 0.5rem;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-        
-        .nav-link:hover {
-            color: #ea580c;
-            background-color: #fff7ed;
-            transform: translateY(-1px);
-        }
-        
-        .nav-link.active {
-            color: #ea580c;
-            background-color: #fff7ed;
-            font-weight: 600;
-        }
-        
-        .btn-success {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: white;
-            background-color: #16a34a;
-            border-radius: 0.5rem;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-success:hover {
-            background-color: #15803d;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        .btn-danger {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            color: white;
-            background-color: #dc2626;
-            border-radius: 0.5rem;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-danger:hover {
-            background-color: #b91c1c;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-            color: #374151;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            border: none;
-            background: none;
-            width: 100%;
-            text-align: left;
-        }
-        
-        .dropdown-item:hover {
-            background-color: #fff7ed;
-            color: #ea580c;
-            transform: translateX(3px);
-        }
-        
-        /* Navbar animations */
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        #user-menu:not(.hidden) {
-            animation: slideDown 0.2s ease-out;
-        }
-        
-        /* Responsive adjustments */
-        @media (max-width: 1024px) {
-            .nav-link {
-                padding: 0.25rem 0.5rem;
-                font-size: 0.75rem;
-            }
-        }
-        
-        /* Active states and focus styles */
-        .nav-link:focus,
-        .dropdown-item:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.5);
-        }
-        
-        /* Profile avatar animation */
-        .profile-avatar {
-            transition: all 0.3s ease;
-        }
-        
-        .profile-avatar:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-         /* Menu button animation */
-        .menu-button {
-            transition: all 0.3s ease;
-        }
-
-        .menu-button:hover {
-            background-color: #fff7ed;
-            transform: scale(1.05);
-        }
-
-        .menu-button svg {
-            transition: transform 0.3s ease;
-        }
-
-        .menu-button.active svg {
-            transform: rotate(180deg);
-        }
-        
-        /* Dropdown menu styling */
-        .dropdown-menu {
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            background-color: rgba(255, 255, 255, 0.98);
-            border: 1px solid rgba(234, 88, 12, 0.2);
-            transform-origin: top center;
-            transition: all 0.3s ease;
-        }
-
-        /* Notification badge styling */
-        .notification-badge {
-            position: absolute;
-            top: -0.25rem;
-            right: -0.25rem;
-            background-color: #ef4444;
-            color: white;
-            font-size: 0.75rem;
-            border-radius: 9999px;
-            height: 1.25rem;
-            width: 1.25rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: .7;
-            }
-        }
-
-        /* Enhanced hover effects */
-        .nav-link:hover svg,
-        .dropdown-item:hover svg {
-            transform: translateX(2px);
-            transition: transform 0.2s ease;
-        }
-
-        /* Brand logo hover effect */
-        .brand-logo {
-            transition: all 0.3s ease;
-        }
-
-        .brand-logo:hover {
-            transform: scale(1.05);
-            filter: brightness(1.1);
-        }
-
-        /* Improved mobile responsiveness */
-        @media (max-width: 768px) {
-            .nav-link {
-                padding: 0.5rem;
-                font-size: 0.875rem;
-            }
-            
-            .dropdown-item {
-                padding: 1rem;
-                font-size: 1rem;
-            }
-        }
-
-        /* Smooth scrolling for navigation */
-        html {
-            scroll-behavior: smooth;
-        }
-
-        /* Loading state for buttons */
-        .btn-loading {
-            position: relative;
-            color: transparent;
-        }
-
-        .btn-loading::after {
-            content: "";
-            position: absolute;
-            width: 1rem;
-            height: 1rem;
-            top: 50%;
-            left: 50%;
-            margin-left: -0.5rem;
-            margin-top: -0.5rem;
-            border: 2px solid #ffffff;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
-    
-    <script>
-        // CSRF token setup
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        let isEditMode = false;
-
-        // Initialize circular progress on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            const circularProgress = document.querySelector('.circular-progress');
-            if (circularProgress) {
-                const percentage = parseInt(circularProgress.getAttribute('data-percentage'));
-                const progressCircle = circularProgress.querySelector('.circle-progress');
-                
-                // Calculate the stroke-dashoffset based on percentage
-                const offset = 100 - percentage;
-                
-                // Animate the progress
-                setTimeout(() => {
-                    progressCircle.style.strokeDashoffset = offset;
-                }, 100);
-            }
-        });
-
-        // Function to update circular progress
-        function updateCircularProgress(percentage) {
-            const circularProgress = document.querySelector('.circular-progress');
-            const percentageText = document.querySelector('.percentage-text');
-            const progressCircle = document.querySelector('.circle-progress');
-            
-            if (circularProgress && percentageText && progressCircle) {
-                // Update percentage text
-                percentageText.textContent = percentage + '%';
-                
-                // Update data attribute
-                circularProgress.setAttribute('data-percentage', percentage);
-                
-                // Calculate and animate progress
-                const offset = 100 - percentage;
-                progressCircle.style.strokeDashoffset = offset;
-                
-                // Add completion animation if 100%
-                if (percentage === 100) {
-                    circularProgress.setAttribute('data-percentage', '100');
-                }
-            }
-        }
-
-        // Toggle user dropdown menu
-        function toggleUserMenu() {
-            const userMenu = document.getElementById('user-menu');
-            const menuButton = document.querySelector('[onclick="toggleUserMenu()"]');
-            const menuArrow = document.getElementById('menu-arrow');
-            
-            userMenu.classList.toggle('hidden');
-            
-            // Toggle arrow rotation
-            if (userMenu.classList.contains('hidden')) {
-                menuArrow.classList.remove('rotate-180');
-            } else {
-                menuArrow.classList.add('rotate-180');
-                
-                // Force reflow to ensure the menu is visible and properly sized
-                void userMenu.offsetWidth;
-                
-                // Make sure the dropdown is on top of other elements
-                userMenu.style.zIndex = '100000';
-                
-                // Apply 3D transform to help with layering
-                userMenu.style.transform = 'translateZ(0)';
-                
-                // Ensure the menu is properly positioned and visible
-                const menuRect = userMenu.getBoundingClientRect();
-                const viewportWidth = window.innerWidth;
-                
-                // If menu is going off-screen, adjust position
-                if (menuRect.right > viewportWidth) {
-                    userMenu.style.left = 'auto';
-                    userMenu.style.right = '0';
-                } else {
-                    // Keep the default left position
-                    userMenu.style.left = '-8rem';
-                    userMenu.style.right = 'auto';
-                }
-            }
-            
-            // Close notifications if open
-            const notificationsMenu = document.getElementById('notifications-menu');
-            if (notificationsMenu) notificationsMenu.classList.add('hidden');
-            
-            // Close mobile menu if open
-            const mobileMenu = document.getElementById('mobile-menu');
-            if (mobileMenu) mobileMenu.classList.add('hidden');
-        }
-
-        // Toggle mobile menu
-        function toggleMobileMenu() {
-            const mobileMenu = document.getElementById('mobile-menu');
-            if (mobileMenu) {
-                mobileMenu.classList.toggle('hidden');
-            }
-            // Close other menus
-            document.getElementById('user-menu').classList.add('hidden');
-            const notificationsMenu = document.getElementById('notifications-menu');
-            if (notificationsMenu) notificationsMenu.classList.add('hidden');
-            
-            // Reset arrow rotation
-            const menuArrow = document.getElementById('menu-arrow');
-            if (menuArrow) menuArrow.classList.remove('rotate-180');
-        }
-
-        // Toggle notifications dropdown
-        function toggleNotifications() {
-            const notificationsMenu = document.getElementById('notifications-menu');
-            if (notificationsMenu) {
-                notificationsMenu.classList.toggle('hidden');
-            }
-            // Close user menu if open
-            document.getElementById('user-menu').classList.add('hidden');
-            
-            // Reset arrow rotation
-            const menuArrow = document.getElementById('menu-arrow');
-            if (menuArrow) menuArrow.classList.remove('rotate-180');
-            
-            // Close mobile menu if open
-            const mobileMenu = document.getElementById('mobile-menu');
-            if (mobileMenu) mobileMenu.classList.add('hidden');
-        }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(event) {
-            const userMenu = document.getElementById('user-menu');
-            const menuButton = event.target.closest('[onclick="toggleUserMenu()"]');
-            const menuArrow = document.getElementById('menu-arrow');
-            
-            if (!menuButton && !userMenu.contains(event.target)) {
-                userMenu.classList.add('hidden');
-                // Reset arrow rotation
-                if (menuArrow) {
-                    menuArrow.classList.remove('rotate-180');
-                }
-            }
-        });
-
-        // Close dropdown on escape key
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                const userMenu = document.getElementById('user-menu');
-                const menuArrow = document.getElementById('menu-arrow');
-                
-                userMenu.classList.add('hidden');
-                if (menuArrow) {
-                    menuArrow.classList.remove('rotate-180');
-                }
-                
-                // Also close mobile menu if open
-                const mobileMenu = document.getElementById('mobile-menu');
-                if (mobileMenu) mobileMenu.classList.add('hidden');
-                
-                // Also close notifications if open
-                const notificationsMenu = document.getElementById('notifications-menu');
-                if (notificationsMenu) notificationsMenu.classList.add('hidden');
-            }
-        });
-
-        // Toggle between view and edit modes
-        function toggleEditMode() {
-            const viewMode = document.getElementById('view-mode');
-            const editMode = document.getElementById('edit-mode');
-
-            if (!isEditMode) {
-                // Switch to edit mode
-                viewMode.style.opacity = '0';
-                setTimeout(() => {
-                    viewMode.classList.add('hidden');
-                    editMode.classList.remove('hidden');
-                    setTimeout(() => {
-                        editMode.style.opacity = '1';
-                    }, 50);
-                }, 300);
-                
-                isEditMode = true;
-                
-                // Show success message
-                showAlert('Edit mode activated. Make your changes and click "Update Profile" to save.', 'success');
-            } else {
-                // Switch to view mode
-                cancelEdit();
-            }
-        }
-
-        function cancelEdit() {
-            const viewMode = document.getElementById('view-mode');
-            const editMode = document.getElementById('edit-mode');
-
-            editMode.style.opacity = '0';
-            setTimeout(() => {
-                editMode.classList.add('hidden');
-                viewMode.classList.remove('hidden');
-                setTimeout(() => {
-                    viewMode.style.opacity = '1';
-                }, 50);
-            }, 300);
-            
-            isEditMode = false;
-        }
-
-        // Show alert message
-        function showAlert(message, type = 'success') {
-            const alertContainer = document.getElementById('alert-container');
-            const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
-            
-            alertContainer.innerHTML = `
-                <div class="alert ${alertClass}">
-                    ${message}
-                </div>
-            `;
-
-            // Scroll to top to make sure alert is visible
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-
-            // Auto-hide after 8 seconds for errors, 5 for success
-            const hideTime = type === 'error' ? 8000 : 5000;
-            setTimeout(() => {
-                alertContainer.innerHTML = '';
-            }, hideTime);
-        }
-
-        // Profile form submission
-        document.getElementById('profile-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData();
-            const form = this;
-            
-            // Add CSRF token
-            formData.append('_token', csrfToken);
-            
-            // Only add fields that have values
-            const inputs = form.querySelectorAll('input, select, textarea');
-            inputs.forEach(input => {
-                if (input.name && input.name !== '_token') {
-                    if (input.type === 'file') {
-                        if (input.files.length > 0) {
-                            formData.append(input.name, input.files[0]);
-                        }
-                    } else if (input.value && input.value.trim() !== '') {
-                        formData.append(input.name, input.value.trim());
-                    }
-                }
-            });
-            
-            try {
-                const response = await fetch('/profile', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    },
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showAlert(data.message, 'success');
-                    // Switch back to view mode and reload page to show updated info
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1500);
-                } else if (data.errors) {
-                    // Handle validation errors
-                    let errorMessage = 'Validation errors:\n';
-                    for (const field in data.errors) {
-                        errorMessage += `${field}: ${data.errors[field].join(', ')}\n`;
-                    }
-                    showAlert(errorMessage, 'error');
-                } else {
-                    showAlert(data.message || 'Profile update failed', 'error');
-                }
-            } catch (error) {
-                showAlert('An error occurred. Please try again.', 'error');
-            }
-        });
-
-        // Password form submission
-        document.getElementById('password-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            
-            try {
-                const response = await fetch('/profile/change-password', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    },
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showAlert(data.message, 'success');
-                    this.reset();
-                } else {
-                    showAlert(data.message || 'Password change failed', 'error');
-                }
-            } catch (error) {
-                showAlert('An error occurred. Please try again.', 'error');
-            }
-        });
-
-        // Profile picture upload
-        async function uploadProfilePicture(input) {
-            if (input.files && input.files[0]) {
-                const formData = new FormData();
-                formData.append('profile_picture', input.files[0]);
-                formData.append('_token', csrfToken);
-
-                try {
-                    const response = await fetch('/profile', {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json'
-                        },
-                        body: formData
-                    });
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        showAlert('Profile picture updated successfully!', 'success');
-                        location.reload();
-                    } else {
-                        showAlert(data.message || 'Failed to update profile picture', 'error');
-                    }
-                } catch (error) {
-                    showAlert('An error occurred. Please try again.', 'error');
-                }
-            }
-        }
-
-        // Host Application Modal
-        function showHostApplicationForm() {
-            console.log('Opening host application modal');
-            document.getElementById('host-application-modal').classList.remove('hidden');
-            document.body.classList.add('overflow-hidden');
-        }
-
-        function hideHostApplicationForm() {
-            console.log('Closing host application modal');
-            document.getElementById('host-application-modal').classList.add('hidden');
-            document.body.classList.remove('overflow-hidden');
-        }
-
-        // Character counter for motivation field
-        function updateCharacterCount(textarea) {
-            const count = textarea.value.length;
-            const counter = document.getElementById('motivation-char-count');
-            counter.textContent = `${count}/50`;
-            
-            if (count < 50) {
-                counter.classList.add('text-red-500');
-                counter.classList.remove('text-green-500');
-            } else {
-                counter.classList.add('text-green-500');
-                counter.classList.remove('text-red-500');
-            }
-        }
-
-        // Host application form submission
-        document.addEventListener('DOMContentLoaded', function() {
-            const hostApplicationForm = document.getElementById('host-application-form');
-            if (hostApplicationForm) {
-                hostApplicationForm.addEventListener('submit', async function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    // Client-side validation
-                    const motivation = this.querySelector('textarea[name="motivation"]').value;
-                    const languages = this.querySelectorAll('input[name="languages[]"]:checked');
-                    const amenities = this.querySelectorAll('input[name="amenities[]"]:checked');
-                    
-                    let validationErrors = [];
-                    
-                    if (motivation.length < 50) {
-                        validationErrors.push('Motivation must be at least 50 characters long');
-                    }
-                    
-                    if (languages.length === 0) {
-                        validationErrors.push('Please select at least one language');
-                    }
-                    
-                    if (amenities.length === 0) {
-                        validationErrors.push('Please select at least one amenity');
-                    }
-                    
-                    if (validationErrors.length > 0) {
-                        showAlert('Please fix the following errors:<br><br>' + validationErrors.join('<br>'), 'error');
-                        return;
-                    }
-                    
-                    // Show immediate feedback
-                    const submitButton = this.querySelector('button[type="submit"]');
-                    const originalText = submitButton.textContent;
-                    submitButton.textContent = 'Submitting...';
-                    submitButton.disabled = true;
-                    
-                    try {
-                        const formData = new FormData(this);
-                        
-                        const response = await fetch('/host-application', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': csrfToken,
-                                'Accept': 'application/json'
-                            },
-                            body: formData
-                        });
-                        
-                        const data = await response.json();
-
-                        if (response.ok && data.success) {
-                            showAlert(data.message, 'success');
-                            hideHostApplicationForm();
-                            setTimeout(() => {
-                                location.reload();
-                            }, 1500);
-                        } else {
-                            if (data.errors) {
-                                let errorMessages = [];
-                                for (const field in data.errors) {
-                                    // Make field names more user-friendly
-                                    const fieldName = field.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-                                    errorMessages.push(`${fieldName}: ${data.errors[field].join(', ')}`);
-                                }
-                                showAlert('Please fix the following errors:<br><br>' + errorMessages.join('<br>'), 'error');
-                            } else {
-                                showAlert(data.message || 'Application submission failed', 'error');
-                            }
-                        }
-                    } catch (error) {
-                        // Try to get more specific error information
-                        let errorMessage = error.message;
-                        if (error.response) {
-                            try {
-                                const errorData = await error.response.json();
-                                if (errorData.errors) {
-                                    let errorMessages = [];
-                                    for (const field in errorData.errors) {
-                                        const fieldName = field.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
-                                        errorMessages.push(`${fieldName}: ${errorData.errors[field].join(', ')}`);
-                                    }
-                                    errorMessage = 'Please fix the following errors:<br><br>' + errorMessages.join('<br>');
-                                } else if (errorData.message) {
-                                    errorMessage = errorData.message;
-                                }
-                            } catch (parseError) {
-                                // Silent fail for parse error
-                            }
-                        }
-                        
-                        showAlert(`Error: ${errorMessage}`, 'error');
-                    } finally {
-                        // Re-enable submit button
-                        submitButton.textContent = originalText;
-                        submitButton.disabled = false;
-                    }
-                });
-            }
-        });
-
-        // City input handling for searchable dropdown
-        document.addEventListener('DOMContentLoaded', function() {
-            const cityInput = document.getElementById('cityInput');
-            const cityHidden = document.getElementById('cityHidden');
-            
-            if (cityInput && cityHidden) {
-                // Update hidden input when user selects a city
-                cityInput.addEventListener('change', function() {
-                    cityHidden.value = this.value;
-                    
-                    // Validate the city is in our list
-                    const datalist = document.getElementById('moroccanCities');
-                    const options = Array.from(datalist.options).map(opt => opt.value);
-                    
-                    if (!options.includes(this.value) && this.value !== '') {
-                        // Reset if not valid
-                        this.value = '';
-                        cityHidden.value = '';
-                        showAlert('Please select a city from the list', 'error');
-                    }
-                });
-                
-                // Update hidden input as user types
-                cityInput.addEventListener('input', function() {
-                    cityHidden.value = this.value;
-                });
-                
-                // Also update when focus is lost
-                cityInput.addEventListener('blur', function() {
-                    // Wait a moment to ensure any selection is captured
-                    setTimeout(() => {
-                        const datalist = document.getElementById('moroccanCities');
-                        const options = Array.from(datalist.options).map(opt => opt.value);
-                        
-                        if (!options.includes(this.value) && this.value !== '') {
-                            this.value = '';
-                            cityHidden.value = '';
-                            showAlert('Please select a city from the list', 'error');
-                        }
-                    }, 200);
-                });
-            }
-        });
-    </script>
+    <script src="{{ asset('js/profile.js') }}"></script>
 
     <!-- Host Application Modal -->
     <div id="host-application-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
@@ -2097,6 +1417,343 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Verification Modal -->
+    <div id="verification-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto shadow-2xl">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center">
+                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">Verify Your Identity</h2>
+                        <p class="text-sm text-gray-600 mt-1">Secure your account with document verification</p>
+                    </div>
+                </div>
+                <button onclick="closeVerificationModal()" class="text-gray-400 hover:text-gray-600 transition-colors duration-200 p-2 hover:bg-gray-100 rounded-full">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Progress Steps -->
+            <div class="flex items-center justify-center mb-8">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">1</div>
+                        <span class="ml-2 text-sm font-medium text-blue-600">Choose Document</span>
+                    </div>
+                    <div class="w-8 h-0.5 bg-gray-300"></div>
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 text-sm font-medium">2</div>
+                        <span class="ml-2 text-sm font-medium text-gray-500">Upload & Submit</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Benefits Section -->
+            <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6 mb-8">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <svg class="w-6 h-6 text-green-600 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Why verify your identity?</h3>
+                        <div class="grid md:grid-cols-3 gap-4 text-sm text-gray-700">
+                            <div class="flex items-center">
+                                <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                Increased trust
+                            </div>
+                            <div class="flex items-center">
+                                <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                Premium features
+                            </div>
+                            <div class="flex items-center">
+                                <svg class="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                Higher acceptance
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form id="verification-form" class="space-y-8">
+                @csrf
+                
+                <!-- Document Type Selection -->
+                <div>
+                    <label class="block text-lg font-semibold text-gray-900 mb-4">
+                        <span class="flex items-center">
+                            <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold mr-3">1</span>
+                            Choose your document type
+                        </span>
+                    </label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <label class="document-option relative cursor-pointer group">
+                            <input type="radio" name="document_type" value="carte_nationale" required class="sr-only peer">
+                            <div class="border-3 border-gray-200 rounded-xl p-6 text-center hover:border-blue-300 peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all duration-300 hover:shadow-lg group-hover:transform group-hover:scale-105">
+                                <div class="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl mx-auto mb-4 flex items-center justify-center group-hover:from-blue-200 group-hover:to-blue-300 transition-all duration-300">
+                                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V4a2 2 0 114 0v2m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">Carte Nationale</h3>
+                                <p class="text-sm text-gray-600">National ID Card</p>
+                                <p class="text-xs text-gray-500 mt-2">Moroccan National Identity Card</p>
+                            </div>
+                        </label>
+                        
+                        <label class="document-option relative cursor-pointer group">
+                            <input type="radio" name="document_type" value="passport" required class="sr-only peer">
+                            <div class="border-3 border-gray-200 rounded-xl p-6 text-center hover:border-blue-300 peer-checked:border-blue-500 peer-checked:bg-blue-50 transition-all duration-300 hover:shadow-lg group-hover:transform group-hover:scale-105">
+                                <div class="w-16 h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-xl mx-auto mb-4 flex items-center justify-center group-hover:from-green-200 group-hover:to-green-300 transition-all duration-300">
+                                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">Passport</h3>
+                                <p class="text-sm text-gray-600">International Passport</p>
+                                <p class="text-xs text-gray-500 mt-2">Any valid international passport</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Document Upload -->
+                <div>
+                    <label class="block text-lg font-semibold text-gray-900 mb-4">
+                        <span class="flex items-center">
+                            <span class="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold mr-3">2</span>
+                            Upload your document
+                        </span>
+                    </label>
+                    <div class="document-upload-area border-3 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 hover:bg-blue-50 transition-all duration-300">
+                        <input type="file" name="document" accept=".pdf,.jpg,.jpeg,.png" required 
+                            class="hidden" id="file-input">
+                        
+                        <div class="upload-content">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Drop your file here</h3>
+                            <p class="text-gray-600 mb-4">
+                                or <button type="button" onclick="document.getElementById('file-input').click()" class="text-blue-600 hover:text-blue-700 font-medium">browse files</button>
+                            </p>
+                            <div class="flex items-center justify-center space-x-4 text-sm text-gray-500">
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    Max 5MB
+                                </span>
+                                <span>•</span>
+                                <span class="flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    JPG, PNG, PDF
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Notice -->
+                <div class="bg-gray-50 rounded-xl p-6 border-l-4 border-blue-500">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <svg class="w-6 h-6 text-blue-600 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-lg font-semibold text-gray-900 mb-2">🔒 Your privacy is protected</h4>
+                            <p class="text-sm text-gray-700 leading-relaxed">
+                                Your document is encrypted and securely stored. We only use it for verification purposes and will never share it with third parties. The verification process typically takes 24-48 hours.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-between items-center pt-6 border-t border-gray-200">
+                    <button type="button" onclick="closeVerificationModal()" 
+                        class="px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 font-medium transition-all duration-300 hover:border-gray-400">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                        class="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl font-semibold transition-all duration-300 inline-flex items-center shadow-lg hover:shadow-xl transform hover:scale-105">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Submit for Verification
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Functions -->
+    <script>
+        // Open password change modal
+        function openPasswordModal() {
+            document.getElementById('passwordModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        // Close password change modal
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.add('hidden');
+            document.body.style.overflow = 'auto'; // Re-enable background scrolling
+            // Reset form
+            document.getElementById('password-form').reset();
+        }
+
+        // Handle password form submission
+        document.getElementById('password-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.innerHTML;
+            
+            // Show loading state
+            submitButton.innerHTML = '<svg class="w-4 h-4 inline mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="4" stroke-opacity="0.25"></circle><path fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Updating...';
+            submitButton.disabled = true;
+
+            fetch('{{ route("profile.change-password") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json',
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success message
+                    alert('Password updated successfully!');
+                    closePasswordModal();
+                } else {
+                    // Show error message
+                    alert(data.message || 'An error occurred while updating password.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while updating password.');
+            })
+            .finally(() => {
+                // Reset button state
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            });
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('passwordModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closePasswordModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePasswordModal();
+            }
+        });
+    </script>
+
+    <!-- Change Password Modal -->
+    <div id="passwordModal" class="fixed inset-0 bg-black bg-opacity-60 overflow-y-auto h-full w-full hidden z-50 backdrop-blur-sm">
+        <div class="relative top-10 mx-auto p-0 border-0 w-full max-w-md shadow-2xl rounded-2xl bg-white my-8">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-6 rounded-t-2xl">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-xl font-bold">Change Password</h3>
+                        <p class="text-orange-100 text-sm mt-1">Update your account password</p>
+                    </div>
+                    <button onclick="closePasswordModal()" class="text-orange-100 hover:text-white transition-colors duration-200">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6">
+                <form id="password-form" class="space-y-4">
+                    @csrf
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-800 mb-2">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                            Current Password
+                        </label>
+                        <input type="password" name="current_password" required 
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-800 mb-2">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path>
+                            </svg>
+                            New Password
+                        </label>
+                        <input type="password" name="new_password" required 
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-800 mb-2">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Confirm New Password
+                        </label>
+                        <input type="password" name="new_password_confirmation" required 
+                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all duration-200">
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                        <button type="button" onclick="closePasswordModal()" 
+                            class="px-6 py-3 text-sm font-medium text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all duration-200 border border-gray-300">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                            class="px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                            Change Password
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
