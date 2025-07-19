@@ -572,23 +572,71 @@
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="{{ route('welcome') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Home</a>
-                    <a href="#experiences" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Experiences</a>
                     <a href="{{ route('listings.index') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Host Families</a>
-                    <a href="{{ route('our-book') }}" class="text-orange-600 font-medium">Our Book</a>
+                    <a href="{{ route('our-book') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Our Book</a>
+                    <a href="{{route('about')}}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">About</a>
                     <a href="{{ route('contact') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Contact</a>
                 </div>
                 <div class="flex items-center space-x-4">
                     @auth
-                    <span class="text-gray-700">Welcome, <span class="font-medium text-orange-600">{{ Auth::user()->first_name }}</span></span>
-                    <a href="{{ route('profile') }}" class="text-orange-600 hover:text-orange-700 font-medium transition-colors duration-300">Profile</a>
-                    <form method="POST" action="{{ route('auth.logout') }}" class="inline">
-                        @csrf
-                        <button type="submit" class="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-full font-medium hover:from-orange-600 hover:to-orange-700 transition-all duration-300">Logout</button>
-                    </form>
+                    <!-- User Profile Dropdown -->
+                    <div class="relative">
+                        <button onclick="toggleUserMenu()" class="flex items-center space-x-2 text-gray-700 hover:text-orange-600 transition-colors duration-300 p-2 rounded-lg hover:bg-orange-50">
+                            <div class="hidden sm:block text-right mr-2">
+                                <p class="text-sm font-medium text-gray-900">{{ Auth::user()->first_name ?? Auth::user()->name }}</p>
+                                <span class="text-xs bg-{{ Auth::user()->role_color }}-100 text-{{ Auth::user()->role_color }}-800 px-2 py-1 rounded-full font-medium">
+                                    {{ Auth::user()->role_display }}
+                                </span>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-sm font-bold">
+                                @if(Auth::user()->profile_picture)
+                                <img src="{{ asset('storage/' . Auth::user()->profile_picture) }}" alt="Profile" class="w-10 h-10 rounded-full object-cover">
+                                @else
+                                {{ strtoupper(substr(Auth::user()->first_name ?? Auth::user()->name, 0, 1)) }}
+                                @endif
+                            </div>
+                            <svg class="w-5 h-5 transform transition-transform duration-200" id="menu-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Dropdown Content -->
+                        <div id="user-menu" class="absolute right-0 mt-2 w-[250px] bg-white rounded-xl shadow-2xl border-2 border-orange-200 py-3 z-[99999] hidden" style="box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+                            <!-- User Info Section -->
+                            <div class="px-4 py-3 border-b border-gray-200">
+                                <p class="font-medium text-gray-900 text-base">{{ Auth::user()->first_name ?? Auth::user()->name }} {{ Auth::user()->last_name }}</p>
+                                <p class="text-sm text-gray-500 mt-1">{{ Auth::user()->email }}</p>
+                                <div class="mt-2">
+                                    <span class="text-sm bg-{{ Auth::user()->role_color ?? 'orange' }}-100 text-{{ Auth::user()->role_color ?? 'orange' }}-800 px-3 py-1 rounded-full font-medium">
+                                        {{ Auth::user()->role_display }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Dropdown Actions -->
+                            <div class="py-2">
+                                <!-- Profile Link -->
+                                <a href="{{ route('profile') }}" class="dropdown-item font-medium text-base py-3">
+                                    My Profile
+                                </a>
+                            </div>
+
+                            <!-- Logout -->
+                            <div class="border-t border-gray-200 pt-2">
+                                <form method="POST" action="{{ route('auth.logout') }}" class="w-full">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item text-red-600 hover:bg-red-50 w-full text-left font-medium text-base py-3">
+                                        Logout
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                     @else
+                    <!-- Hide Sign In and Join Now buttons on mobile -->
                     <div class="hidden md:flex items-center space-x-4">
                         <a href="{{ route('auth') }}" class="text-orange-600 hover:text-orange-700 font-medium transition-colors duration-300">Sign In</a>
-                        <a href="{{ route('auth') }}" class="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-3 rounded-full font-medium hover:from-orange-600 hover:to-orange-700 transition-all duration-300">Join Now</a>
+                        <a href="{{ route('auth') }}" class="btn-moroccan text-white px-6 py-3 rounded-full font-medium">Join Now</a>
                     </div>
                     @endauth
                 </div>
@@ -609,27 +657,33 @@
                     <a href="{{ route('welcome') }}" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Home</a>
                     <a href="#experiences" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Experiences</a>
                     <a href="{{ route('listings.index') }}" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Host Families</a>
-                    <a href="{{ route('our-book') }}" class="block px-3 py-2 text-orange-600 font-medium">Our Book</a>
+                    <a href="{{ route('our-book') }}" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Our Book</a>
+                    <a href="{{route('about')}}" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">About</a>
                     <a href="{{ route('contact') }}" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Contact</a>
-                    @auth
                     <div class="border-t border-gray-200 pt-3 mt-3">
-                        <div class="px-3 py-2">
-                            <p class="text-sm text-gray-600">Welcome, <span class="font-medium text-orange-600">{{ Auth::user()->first_name }}</span></p>
+                        @auth
+                        <!-- User Info -->
+                        <div class="mb-4 p-3 bg-white rounded-lg border border-orange-100">
+                            <p class="font-medium text-gray-900 text-lg">{{ Auth::user()->first_name ?? Auth::user()->name }} {{ Auth::user()->last_name }}</p>
+                            <p class="text-sm text-gray-500 mb-2">{{ Auth::user()->email }}</p>
+                            <span class="text-sm bg-{{ Auth::user()->role_color ?? 'orange' }}-100 text-{{ Auth::user()->role_color ?? 'orange' }}-800 px-3 py-1 rounded-full font-medium">
+                                {{ Auth::user()->role_display }}
+                            </span>
                         </div>
-                        <a href="{{ route('profile') }}" class="block px-3 py-2 text-orange-600 font-medium">Profile</a>
+
+                        <a href="{{ route('profile') }}" class="block px-3 py-2 text-orange-600 font-medium">My Profile</a>
                         <form method="POST" action="{{ route('auth.logout') }}" class="px-3 mt-2">
                             @csrf
                             <button type="submit" class="w-full text-center bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-full font-medium">Logout</button>
                         </form>
-                    </div>
-                    @else
-                    <div class="border-t border-gray-200 pt-3 mt-3">
+                        @else
                         <a href="{{ route('auth') }}" class="block px-3 py-2 text-orange-600 font-medium">Sign In</a>
                         <a href="{{ route('auth') }}" class="block mx-3 mt-2 text-center bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-2 rounded-full font-medium">Join Now</a>
+                        @endauth
                     </div>
-                    @endauth
                 </div>
             </div>
+        </div>
         </div>
     </nav>
 
@@ -1281,7 +1335,173 @@
                 <a href="{{ route('auth') }}" class="cta-button">Start Your Culinary Journey</a>
             </div>
         </section>
-    </div> <!-- End Food Content -->
+    </div> 
+    <footer class="bg-gray-900 text-white py-10 relative overflow-hidden">
+        <!-- Decorative Background Pattern -->
+        <div class="absolute inset-0 opacity-5">
+            <div class="moroccan-pattern h-full w-full"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <!-- Main Footer Content -->
+            <div class="mb-6">
+                <!-- Top Row: Logo and Brand Description -->
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mt-6 mb-6">
+                    <div class="flex flex-col lg:flex-row lg:items-center mb-4 lg:mb-0">
+                        <p class="text-gray-400 leading-relaxed max-w-md">Connecting travelers with authentic Moroccan families for genuine cultural experiences and lifelong memories.</p>
+                    </div>
+
+                    <!-- Navigation Links on Same Line -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+                        <!-- Quick Links -->
+                        <div>
+                            <h4 class="text-base font-['Playfair_Display'] font-semibold mb-3 text-white">Discover</h4>
+                            <ul class="space-y-1 text-gray-400 text-sm">
+                                <li><a href="#" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                        <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Browse Host Families
+                                    </a></li>
+                                <li><a href="#" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                        <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Cultural Experiences
+                                    </a></li>
+                                <li><a href="{{ route('our-book') }}" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                        <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Travel Guide
+                                    </a></li>
+                                <li><a href="#" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                        <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Safety Center
+                                    </a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Host Resources -->
+                        <div>
+                            <h4 class="text-base font-['Playfair_Display'] font-semibold mb-3 text-white">For Hosts</h4>
+                            <ul class="space-y-1 text-gray-400 text-sm">
+                                <li><a href="{{ route('auth') }}" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                        <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Start Hosting
+                                    </a></li>
+                                <li><a href="{{ route('our-book') }}" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                        <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Host Guidelines
+                                    </a></li>
+                                <li><a href="#" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                        <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Community Forum
+                                    </a></li>
+                                <li><a href="#" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                        <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Support Center
+                                    </a></li>
+                            </ul>
+                        </div>
+
+                        <!-- Support -->
+                        <div>
+                            <h4 class="text-base font-['Playfair_Display'] font-semibold mb-3 text-white">Support</h4>
+                            <ul class="space-y-1 text-gray-400 text-sm">
+                                <li><a href="#" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                        <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Help Center
+                                    </a></li>
+                                <li><a href="{{ route('contact') }}" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                        <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Contact Us
+                                    </a></li>
+                                <li><a href="{{ route('privacy') }}" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                        <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Privacy Policy
+                                    </a></li>
+                                <li><a href="{{ route('privacy') }}" class="hover:text-orange-400 transition-colors duration-300 flex items-center group">
+                                        <svg class="w-3 h-3 mr-2 opacity-0 group-hover:opacity-100 transition-opacity" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        Terms of Service
+                                    </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Row: Newsletter and Social Media -->
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+                    <!-- Newsletter Signup -->
+                    <div class="mb-4 lg:mb-0">
+                        <h5 class="text-white font-semibold mb-2">Stay Connected</h5>
+                        <div class="flex max-w-sm">
+                            <input type="email" placeholder="Enter your email" class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 rounded-l-lg text-white placeholder-gray-400 focus:outline-none focus:border-orange-400 transition-colors text-sm">
+                            <button class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 px-4 py-2 rounded-r-lg transition-all duration-300 font-medium text-sm">
+                                Subscribe
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Social Media -->
+                    <div>
+                        <h5 class="text-white font-semibold mb-2">Follow Us</h5>
+                        <div class="flex space-x-3">
+                            <!-- Instagram -->
+                            <a href="https://www.instagram.com/_cultaroo_/profilecard/?igsh=MTJkYWI0czl0cHllZQ==" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2zm0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5A4.25 4.25 0 0 0 7.75 20.5h8.5A4.25 4.25 0 0 0 20.5 16.25v-8.5A4.25 4.25 0 0 0 16.25 3.5h-8.5zm4.25 3.25a5.25 5.25 0 1 1 0 10.5a5.25 5.25 0 0 1 0-10.5zm0 1.5a3.75 3.75 0 1 0 0 7.5a3.75 3.75 0 0 0 0-7.5zm5.25.75a1 1 0 1 1-2 0a1 1 0 0 1 2 0z" />
+                                </svg>
+                            </a>
+                            <!-- TikTok -->
+                            <a href="https://www.tiktok.com/@cultaroo?_t=ZM-8y9gKxxD7zx&_r=1" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-orange-600 transition-all duration-300 transform hover:scale-110">
+                                <svg class="w-4 h-4" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M22.5 7.5c.2 2.1 1.7 3.7 3.5 4v3.1c-1.7 0-3.3-.6-4.5-1.6V24c0 3.1-2.5 5.6-5.6 5.6s-5.6-2.5-5.6-5.6 2.5-5.6 5.6-5.6c.3 0 .6 0 .9.1v2.7c-.3-.1-.6-.1-.9-.1-1.6 0-2.9 1.3-2.9 2.9s1.3 2.9 2.9 2.9 2.9-1.3 2.9-2.9V7.5h3.7z" fill="currentColor"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Section -->
+            <div class="border-t border-gray-800 pt-6">
+                <div class="flex flex-col lg:flex-row justify-between items-center space-y-3 lg:space-y-0">
+                    <!-- Copyright -->
+                    <div class="text-center lg:text-left mb-6">
+                        <p class="text-gray-400 text-sm">
+                            &copy; 2025 Culturoo. All rights reserved.
+                        </p>
+                        <p class="text-gray-500 text-xs flex items-center justify-center lg:justify-start mt-1">
+                            Made with
+                            <svg class="w-3 h-3 mx-1 text-orange-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+                            </svg>
+                            for cultural exchange in Morocco
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <script>
         // Mobile menu toggle
@@ -1473,6 +1693,133 @@
             title.style.animationPlayState = 'paused';
             titleObserver.observe(title);
         });
+    </script>
+    <script>
+        // Toggle user dropdown menu
+        function toggleUserMenu() {
+            const userMenu = document.getElementById('user-menu');
+            const menuArrow = document.getElementById('menu-arrow');
+
+            if (userMenu) {
+                userMenu.classList.toggle('hidden');
+
+                // Toggle arrow rotation
+                if (userMenu.classList.contains('hidden')) {
+                    menuArrow.classList.remove('rotate-180');
+                } else {
+                    menuArrow.classList.add('rotate-180');
+
+                    // Force reflow to ensure the menu is visible and properly sized
+                    void userMenu.offsetWidth;
+
+                    // Ensure the menu is properly positioned and visible
+                    const menuRect = userMenu.getBoundingClientRect();
+                    const viewportWidth = window.innerWidth;
+
+                    // If menu is going off-screen, adjust position
+                    if (menuRect.right > viewportWidth) {
+                        userMenu.style.left = 'auto';
+                        userMenu.style.right = '0';
+                    }
+                }
+
+                // Close mobile menu if open
+                const mobileMenu = document.getElementById('mobile-menu');
+                if (mobileMenu) mobileMenu.classList.add('hidden');
+            }
+        }
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu) {
+                mobileMenu.classList.toggle('hidden');
+            }
+
+            // Close user dropdown if open
+            const userMenu = document.getElementById('user-menu');
+            if (userMenu) {
+                userMenu.classList.add('hidden');
+            }
+
+            // Reset arrow rotation
+            const menuArrow = document.getElementById('menu-arrow');
+            if (menuArrow) {
+                menuArrow.classList.remove('rotate-180');
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userMenu = document.getElementById('user-menu');
+            const menuButton = event.target.closest('[onclick="toggleUserMenu()"]');
+            const menuArrow = document.getElementById('menu-arrow');
+
+            if (userMenu && !menuButton && !userMenu.contains(event.target)) {
+                userMenu.classList.add('hidden');
+                // Reset arrow rotation
+                if (menuArrow) {
+                    menuArrow.classList.remove('rotate-180');
+                }
+            }
+        });
+
+        // Close dropdown on escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const userMenu = document.getElementById('user-menu');
+                const menuArrow = document.getElementById('menu-arrow');
+
+                if (userMenu) {
+                    userMenu.classList.add('hidden');
+                }
+                if (menuArrow) {
+                    menuArrow.classList.remove('rotate-180');
+                }
+
+                // Also close mobile menu if open
+                const mobileMenu = document.getElementById('mobile-menu');
+                if (mobileMenu) {
+                    mobileMenu.classList.add('hidden');
+                }
+            }
+        });
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                    // Close mobile menu if open
+                    const mobileMenu = document.getElementById('mobile-menu');
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        });
+
+        // Navigation background on scroll
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 100) {
+                nav.classList.add('bg-white/98');
+                nav.classList.remove('bg-white/95');
+            } else {
+                nav.classList.add('bg-white/95');
+                nav.classList.remove('bg-white/98');
+            }
+        });
+
+        // Scroll to top function
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
     </script>
 </body>
 </html>

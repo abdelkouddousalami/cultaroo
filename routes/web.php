@@ -20,9 +20,17 @@ Route::get('/contact', function () {
 
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 
+
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
+
 Route::get('/our-book', function () {
     return view('our-book');
 })->name('our-book');
+Route::get('/privacy', function () {
+    return view('privacy');
+})->name('privacy');
 
 Route::get('/city/{city}', [CityController::class, 'show'])->name('city.show');
 

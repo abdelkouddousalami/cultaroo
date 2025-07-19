@@ -223,6 +223,7 @@
     </style>
 </head>
 <body>
+    
     <div class="verification-container">
         <div class="logo">Culturoo</div>
         <h1 class="title">Verify Your Email</h1>

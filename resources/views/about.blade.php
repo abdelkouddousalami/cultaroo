@@ -1,79 +1,82 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Host Families - Culturoo</title>
-    @include('partials.favicon')
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    @vite('resources/css/app.css')
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+@extends('layouts.app')
+
+
+@section('content')
     <style>
-        .gradient-text {
-            background: linear-gradient(135deg, #8B4513, #D2691E);
+        /* Fade-in animation for sections */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(40px);
+            animation: fadeInUp 1s cubic-bezier(.77,0,.175,1) forwards;
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+        /* Animated gradient text */
+        .gradient-text-animated {
+            background: linear-gradient(270deg, #D67D45, #F9A826, #D2691E, #8B4513);
+            background-size: 800% 800%;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            animation: gradientMove 6s ease-in-out infinite;
         }
-        .btn-moroccan {
-            background: linear-gradient(135deg, #D2691E, #8B4513);
-            transition: all 0.3s ease;
+        @keyframes gradientMove {
+            0% {background-position:0% 50%}
+            50% {background-position:100% 50%}
+            100% {background-position:0% 50%}
         }
-        .btn-moroccan:hover {
-            background: linear-gradient(135deg, #8B4513, #D2691E);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(139, 69, 19, 0.3);
+        /* Card hover pop and shadow */
+        .card-animate {
+            transition: transform 0.4s cubic-bezier(.77,0,.175,1), box-shadow 0.4s cubic-bezier(.77,0,.175,1);
         }
-        .listing-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
+        .card-animate:hover {
+            transform: translateY(-12px) scale(1.04);
+            box-shadow: 0 24px 48px rgba(214, 125, 69, 0.18), 0 1.5px 8px rgba(0,0,0,0.08);
         }
-        .listing-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        /* Animated border shimmer */
+        .shimmer-border {
+            position: relative;
         }
-        .filter-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .shimmer-border:before {
+            content: "";
+            position: absolute;
+            top: -8px; left: -8px; right: -8px; bottom: -8px;
+            border-radius: 24px;
+            border: 3px solid #F9A826;
+            opacity: 0.2;
+            pointer-events: none;
+            animation: shimmer 2.5s linear infinite;
         }
-        .dropdown-item {
-            display: block;
-            padding: 0.5rem 1rem;
-            font-size: 1rem;
-            color: #374151;
-            transition: all 0.2s ease;
-            width: 100%;
-            text-align: left;
-            border: none;
-            background: none;
-            cursor: pointer;
+        @keyframes shimmer {
+            0% {box-shadow: 0 0 0 0 #F9A82644;}
+            50% {box-shadow: 0 0 24px 8px #F9A82688;}
+            100% {box-shadow: 0 0 0 0 #F9A82644;}
         }
-        .dropdown-item:hover {
-            background-color: #fef3c7;
-            color: #ea580c;
+        /* Button pulse */
+        .pulse-btn {
+            animation: pulse 1.5s infinite;
         }
-        
-        /* Navbar animations */
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        @keyframes pulse {
+            0% {box-shadow: 0 0 0 0 #D67D45aa;}
+            70% {box-shadow: 0 0 0 12px #D67D4500;}
+            100% {box-shadow: 0 0 0 0 #D67D45aa;}
         }
-        
-        #user-menu:not(.hidden) {
-            animation: slideDown 0.2s ease-out;
+        /* Section reveal stagger */
+        .section-reveal {
+            opacity: 0;
+            transform: translateY(60px);
+            animation: fadeInUp 1.2s cubic-bezier(.77,0,.175,1) forwards;
         }
+        .section-reveal.delay-1 {animation-delay: .2s;}
+        .section-reveal.delay-2 {animation-delay: .4s;}
+        .section-reveal.delay-3 {animation-delay: .6s;}
+        .section-reveal.delay-4 {animation-delay: .8s;}
+        .section-reveal.delay-5 {animation-delay: 1s;}
     </style>
-</head>
-<body class="font-['Inter'] text-gray-800 bg-gradient-to-br from-orange-50 to-orange-100 min-h-screen">
     <!-- Navigation -->
     <nav class="fixed top-0 w-full bg-white/95 backdrop-blur-sm shadow-lg z-50 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -85,7 +88,7 @@
                     <a href="{{ route('welcome') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Home</a>
                     <a href="{{ route('listings.index') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Host Families</a>
                     <a href="{{ route('our-book') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Our Book</a>
-                    <a href="{{route('about')}}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">About</a>
+                    <a href="#about" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">About</a>
                     <a href="{{ route('contact') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Contact</a>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -106,9 +109,6 @@
                                 {{ strtoupper(substr(Auth::user()->first_name ?? Auth::user()->name, 0, 1)) }}
                                 @endif
                             </div>
-                            <svg class="w-5 h-5 transform transition-transform duration-200" id="menu-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
                         </button>
 
                         <!-- Dropdown Content -->
@@ -155,9 +155,7 @@
                 <!-- Mobile menu button -->
                 <div class="md:hidden">
                     <button class="text-gray-700 hover:text-orange-600 focus:outline-none focus:text-orange-600" onclick="toggleMobileMenu()">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
+                        <span class="h-6 w-6 block">&#9776;</span>
                     </button>
                 </div>
             </div>
@@ -169,7 +167,7 @@
                     <a href="#experiences" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Experiences</a>
                     <a href="{{ route('listings.index') }}" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Host Families</a>
                     <a href="{{ route('our-book') }}" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Our Book</a>
-                    <a href="{{route('about')}}" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">About</a>
+                    <a href="#about" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">About</a>
                     <a href="{{ route('contact') }}" class="block px-3 py-2 text-gray-700 hover:text-orange-600 transition-colors duration-300">Contact</a>
                     <div class="border-t border-gray-200 pt-3 mt-3">
                         @auth
@@ -197,245 +195,184 @@
         </div>
         </div>
     </nav>
+    <!-- Our Story -->
+    <section class="max-w-3xl mx-auto pt-8 pb-12 px-4 text-center fade-in mt-8">
+        <h2 class="text-3xl md:text-4xl font-['Playfair_Display'] font-bold mb-4 gradient-text-animated">Our Story: More Than Tourism, It’s Transformation</h2>
+        <blockquote class="bg-orange-100 rounded-xl p-6 shadow-md text-lg text-gray-700 mb-6 italic border-l-4 border-orange-400 shimmer-border">
+            <span class="inline-block mb-2 text-2xl">“</span>As travelers in Morocco, we wandered medinas and deserts – but our deepest memories were born in family kitchens, sharing stories over mint tea. Yet arranging these moments was near impossible.<br>
+            So we built Culturoo: a bridge between travelers craving authenticity and Moroccan families eager to share their heritage.<br>
+            <span class="font-semibold text-orange-700">Welcome to where strangers become cousins.</span>
+        </blockquote>
+    </section>
+    <section class="max-w-4xl mx-auto pt-8 pb-12 px-4 fade-in mt-8">
+        <div class="flex flex-col md:flex-row items-center md:space-x-8">
+            <div class="md:w-2/3 text-center md:text-left">
+                <h2 class="text-3xl md:text-4xl font-['Playfair_Display'] font-bold mb-4 gradient-text-animated">Our Story: More Than Tourism, It’s Transformation</h2>
+                <blockquote class="bg-orange-100 rounded-xl p-6 shadow-md text-lg text-gray-700 mb-6 italic border-l-4 border-orange-400 shimmer-border">
+                    <span class="inline-block mb-2 text-2xl">“</span>As travelers in Morocco, we wandered medinas and deserts – but our deepest memories were born in family kitchens, sharing stories over mint tea. Yet arranging these moments was near impossible.<br>
+                    So we built Culturoo: a bridge between travelers craving authenticity and Moroccan families eager to share their heritage.<br>
+                    <span class="font-semibold text-orange-700">Welcome to where strangers become cousins.</span>
+                </blockquote>
+            </div>
+            <div class="md:w-1/3 mt-6 md:mt-0 flex justify-center">
+                <img src="{{ asset('images/aboutus/image1.jpg') }}" alt="Mint Tea Story" style="width: 1100px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);" class="w-full h-auto object-cover rounded-2xl border-4 border-orange-300 shadow-lg card-animate shimmer-border">
+            </div>
+        </div>
+    </section>
 
-    <!-- Hero Section -->
-    <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white" style="margin-top: 80px;">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-            <div class="text-center">
-                <h1 class="text-4xl md:text-5xl font-['Playfair_Display'] font-bold mb-6">Discover Authentic Moroccan Host Families</h1>
-                <p class="text-xl text-orange-100 mb-8 max-w-3xl mx-auto">Experience genuine Moroccan hospitality and immerse yourself in local culture with our carefully selected host families</p>
-                <div class="flex justify-center">
-                    <div class="bg-white rounded-lg p-2 flex items-center max-w-md w-full">
-                        <input type="text" id="search-input" placeholder="Search by city..." 
-                            class="flex-1 px-4 py-2 text-gray-800 focus:outline-none"
-                            value="{{ request('city') }}">
-                        <button onclick="searchListings()" class="btn-moroccan text-white px-6 py-2 rounded-lg font-medium">
-                            Search
-                        </button>
-                    </div>
+    <!-- Why Culturoo Table -->
+    <section class="max-w-4xl mx-auto py-8 px-4 fade-in section-reveal delay-1">
+        <h2 class="text-2xl font-bold mb-4 text-orange-700 gradient-text-animated">Why Culturoo? Your Passport to Real Morocco</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border border-orange-200 rounded-lg shadow-md text-base">
+                <thead class="bg-orange-100">
+                    <tr>
+                        <th class="py-3 px-4 font-semibold">Experience</th>
+                        <th class="py-3 px-4 font-semibold">Traditional Tourism</th>
+                        <th class="py-3 px-4 font-semibold">Culturoo</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    <tr class="card-animate">
+                        <td class="py-2 px-4">Accommodation</td>
+                        <td class="py-2 px-4">Hotel chains</td>
+                        <td class="py-2 px-4">Handpicked family homes</td>
+                    </tr>
+                    <tr class="card-animate">
+                        <td class="py-2 px-4">Food</td>
+                        <td class="py-2 px-4">Tourist restaurants</td>
+                        <td class="py-2 px-4">Cook & eat with grandmothers</td>
+                    </tr>
+                    <tr class="card-animate">
+                        <td class="py-2 px-4">Activities</td>
+                        <td class="py-2 px-4">Generic tours</td>
+                        <td class="py-2 px-4">Atlas hikes with local uncles</td>
+                    </tr>
+                    <tr class="card-animate">
+                        <td class="py-2 px-4">Connection</td>
+                        <td class="py-2 px-4">Transactional</td>
+                        <td class="py-2 px-4">Lifelong bonds</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Advantages -->
+    <section class="max-w-4xl mx-auto py-8 px-4 grid md:grid-cols-3 gap-8 fade-in section-reveal delay-2">
+        <div class="bg-white rounded-xl shadow-lg border border-orange-100 p-6 card-animate">
+            <h3 class="text-lg font-bold text-orange-700 mb-2">Authenticity Guaranteed</h3>
+            <ul class="list-disc ml-5 text-gray-700">
+                <li>Personally vetted by our team</li>
+                <li>Background-checked</li>
+                <li>Trained in cultural hosting</li>
+            </ul>
+            <p class="mt-2 text-sm text-gray-500">No staged shows – just real daily life</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-lg border border-orange-100 p-6 card-animate">
+            <h3 class="text-lg font-bold text-orange-700 mb-2">Safety First</h3>
+            <ul class="list-disc ml-5 text-gray-700">
+                <li>24/7 on-call support</li>
+                <li>Secure payments via escrow system</li>
+                <li>Emergency protocols with local partners</li>
+            </ul>
+        </div>
+        <div class="bg-white rounded-xl shadow-lg border border-orange-100 p-6 card-animate">
+            <h3 class="text-lg font-bold text-orange-700 mb-2">Value That Matters</h3>
+            <table class="w-full text-sm mb-2">
+                <tr><td class="font-bold">Culturoo</td><td class="font-bold">Competitors</td></tr>
+                <tr><td>Night Stay: $25-40</td><td>$60+</td></tr>
+                <tr><td>Meals: Included</td><td>$15/meal</td></tr>
+                <tr><td>Experiences: Free with family</td><td>$50/tour</td></tr>
+            </table>
+            <p class="text-sm text-gray-500">80% of fees go directly to families<br>Carbon-neutral stays<br>Cultural preservation initiatives</p>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="max-w-4xl mx-auto py-12 px-4 fade-in section-reveal delay-3">
+        <h2 class="text-2xl font-bold mb-4 text-orange-700 gradient-text-animated">How It Works: Your Journey in 3 Steps</h2>
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="bg-white rounded-xl shadow-lg border border-orange-100 p-6 flex flex-col items-center card-animate">
+                <h3 class="font-bold text-orange-700 mb-2">Discover</h3>
+                <ul class="list-disc ml-5 text-gray-700 text-center">
+                    <li>Browse families by location (Marrakech, Sahara...)</li>
+                    <li>Interests (Cooking, Music, Trekking...)</li>
+                    <li>Language (French, English, Arabic...)</li>
+                </ul>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg border border-orange-100 p-6 flex flex-col items-center card-animate">
+                <h3 class="font-bold text-orange-700 mb-2">Connect</h3>
+                <ul class="list-disc ml-5 text-gray-700 text-center">
+                    <li>Message families directly → Plan your immersion</li>
+                    <li class="italic">"I’d love to learn embroidery from you!"</li>
+                </ul>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg border border-orange-100 p-6 flex flex-col items-center card-animate">
+                <h3 class="font-bold text-orange-700 mb-2">Live</h3>
+                <ul class="list-disc ml-5 text-gray-700 text-center">
+                    <li>Arrive as a guest → Leave as family</li>
+                    <li>Take home recipes, local phone numbers</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Us Highlight Image -->
+    <section class="max-w-4xl mx-auto py-8 px-4 fade-in section-reveal delay-4">
+        <div class="flex flex-col md:flex-row items-center md:space-x-8">
+            <div class="md:w-1/2 mb-6 md:mb-0 flex justify-center">
+                <img src="{{ asset('images/aboutus/image2.jpg') }}" alt="Atlas Hike" style="width: 1100px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);" class="w-full h-auto object-cover rounded-2xl border-4 border-orange-300 shadow-lg card-animate shimmer-border">
+            </div>
+            <div class="md:w-1/2">
+                <h3 class="text-xl font-bold text-orange-700 mb-2 gradient-text-animated">A Journey Beyond the Guidebook</h3>
+                <p class="text-gray-700 text-lg">From hiking the Atlas mountains with local uncles to learning family recipes, every Culturoo experience is a story you’ll tell for years.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Meet Our Families Carousel (Polaroid-style grid) -->
+    <section class="max-w-4xl mx-auto py-12 px-4 fade-in section-reveal delay-4">
+        <h2 class="text-2xl font-bold mb-4 text-orange-700 gradient-text-animated">Meet Our Families (Real People, Real Stories)</h2>
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="bg-white rounded-2xl shadow-lg border-4 border-orange-200 p-6 flex flex-col items-center polaroid card-animate shimmer-border">
+                <img src="{{ asset('images/aboutus/fatima.jpg') }}" alt="Fatima" class="w-28 h-28 rounded-full mb-4 object-cover border-4 border-orange-300 animate__animated animate__fadeIn">
+                <p class="font-semibold text-gray-800">Fatima, Marrakech</p>
+                <p class="text-gray-600 text-center mt-2">"I’ve taught 32 travelers to make couscous – now they send me photos of their attempts!"</p>
+                <button class="mt-3 px-4 py-2 rounded-full bg-orange-100 text-orange-700 font-semibold hover:bg-orange-200 transition pulse-btn">Ask Fatima about her cooking class!</button>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg border-4 border-orange-200 p-6 flex flex-col items-center polaroid card-animate shimmer-border">
+                <img src="{{ asset('images/aboutus/ahmed.jpg') }}" alt="Ahmed" class="w-28 h-28 rounded-full mb-4 object-cover border-4 border-orange-300 animate__animated animate__fadeIn">
+                <p class="font-semibold text-gray-800">Ahmed, Chefchaouen</p>
+                <p class="text-gray-600 text-center mt-2">"My kids practice English with guests... last month an Italian taught us pizza-making!"</p>
+                <button class="mt-3 px-4 py-2 rounded-full bg-orange-100 text-orange-700 font-semibold hover:bg-orange-200 transition pulse-btn">Ask Ahmed about his pizza recipe!</button>
+            </div>
+        </div>
+        <!-- Carousel/slider implementation can be added here -->
+    </section>
+
+    <!-- Testimonials -->
+    <section class="max-w-4xl mx-auto py-12 px-4 fade-in section-reveal delay-5">
+        <h2 class="text-2xl font-bold mb-4 text-orange-700 gradient-text-animated">Join 1,200+ Travelers Who Found Their Moroccan Home</h2>
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="bg-white rounded-xl shadow-lg border border-orange-100 p-6 flex items-center card-animate">
+                <img src="{{ asset('images/aboutus/sophie.jpg') }}" alt="Sophie" class="w-16 h-16 rounded-full mr-4 object-cover border-2 border-orange-200 animate__animated animate__fadeIn">
+                <div>
+                    <p class="text-gray-800 font-semibold">"NOT a hotel – I cried leaving ‘my family’ in Fes"</p>
+                    <p class="text-gray-500 text-sm">- Sophie, Canada <span class="ml-2 text-orange-400 underline cursor-pointer">Read her story</span></p>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg border border-orange-100 p-6 flex items-center card-animate">
+                <img src="{{ asset('images/aboutus/miguel.jpg') }}" alt="Miguel" class="w-16 h-16 rounded-full mr-4 object-cover border-2 border-orange-200 animate__animated animate__fadeIn">
+                <div>
+                    <p class="text-gray-800 font-semibold">"Learned Darija slang you won’t find in guidebooks!"</p>
+                    <p class="text-gray-500 text-sm">- Miguel, Spain <span class="ml-2 text-orange-400 underline cursor-pointer">Watch his video</span></p>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="grid lg:grid-cols-4 gap-8">
-            <!-- Filters Sidebar -->
-            <div class="lg:col-span-1">
-                <div class="filter-card rounded-2xl p-6 shadow-lg sticky top-8">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Filter Results</h3>
-                    
-                    <form id="filter-form" method="GET" action="{{ route('listings.index') }}">
-                        <!-- City Filter -->
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
-                            <select name="city" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-                                <option value="">All Cities</option>
-                                @foreach($cities as $city)
-                                    <option value="{{ $city }}" {{ request('city') === $city ? 'selected' : '' }}>{{ $city }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Room Type Filter -->
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Room Type</label>
-                            <select name="room_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-                                <option value="">All Types</option>
-                                <option value="private_room" {{ request('room_type') === 'private_room' ? 'selected' : '' }}>Private Room</option>
-                                <option value="shared_room" {{ request('room_type') === 'shared_room' ? 'selected' : '' }}>Shared Room</option>
-                                <option value="entire_place" {{ request('room_type') === 'entire_place' ? 'selected' : '' }}>Entire Place</option>
-                            </select>
-                        </div>
-
-                        <!-- Price Range -->
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Price Range (MAD/night)</label>
-                            <div class="grid grid-cols-2 gap-2">
-                                <input type="number" name="min_price" placeholder="Min" value="{{ request('min_price') }}"
-                                    class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-                                <input type="number" name="max_price" placeholder="Max" value="{{ request('max_price') }}"
-                                    class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-                            </div>
-                        </div>
-
-                        <!-- Languages -->
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Languages</label>
-                            <div class="space-y-2">
-                                @php $selectedLanguages = request('languages', []); @endphp
-                                <label class="flex items-center">
-                                    <input type="checkbox" name="languages[]" value="Arabic" 
-                                        {{ in_array('Arabic', $selectedLanguages) ? 'checked' : '' }}
-                                        class="rounded border-gray-300 text-orange-600 focus:ring-orange-500">
-                                    <span class="ml-2 text-sm">Arabic</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" name="languages[]" value="French" 
-                                        {{ in_array('French', $selectedLanguages) ? 'checked' : '' }}
-                                        class="rounded border-gray-300 text-orange-600 focus:ring-orange-500">
-                                    <span class="ml-2 text-sm">French</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" name="languages[]" value="English" 
-                                        {{ in_array('English', $selectedLanguages) ? 'checked' : '' }}
-                                        class="rounded border-gray-300 text-orange-600 focus:ring-orange-500">
-                                    <span class="ml-2 text-sm">English</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" name="languages[]" value="Spanish" 
-                                        {{ in_array('Spanish', $selectedLanguages) ? 'checked' : '' }}
-                                        class="rounded border-gray-300 text-orange-600 focus:ring-orange-500">
-                                    <span class="ml-2 text-sm">Spanish</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Filter Buttons -->
-                        <div class="space-y-2">
-                            <button type="submit" class="w-full btn-moroccan text-white py-2 rounded-lg font-medium">
-                                Apply Filters
-                            </button>
-                            <a href="{{ route('listings.index') }}" class="w-full block text-center border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition-colors duration-300">
-                                Clear Filters
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Listings Grid -->
-            <div class="lg:col-span-3">
-                <!-- Results Header -->
-                <div class="flex justify-between items-center mb-6">
-                    <div>
-                        <h2 class="text-2xl font-semibold text-gray-900">Available Host Families</h2>
-                        <p class="text-gray-600">{{ $announcements->total() }} {{ $announcements->total() === 1 ? 'family' : 'families' }} found</p>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <label class="text-sm text-gray-600">Sort by:</label>
-                        <select id="sort-select" class="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
-                            <option value="latest" {{ request('sort') === 'latest' || !request('sort') ? 'selected' : '' }}>Latest</option>
-                            <option value="price_low" {{ request('sort') === 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
-                            <option value="price_high" {{ request('sort') === 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
-                        </select>
-                    </div>
-                </div>
-
-                @if($announcements->count() > 0)
-                    <!-- Listings Grid -->
-                    <div class="grid md:grid-cols-2 gap-6">
-                        @foreach($announcements as $announcement)
-                        <div class="listing-card rounded-2xl overflow-hidden shadow-lg">
-                            <!-- Image -->
-                            <div class="relative h-48">
-                                @if($announcement->first_image)
-                                    <img src="{{ asset('storage/' . $announcement->first_image) }}" 
-                                        alt="{{ $announcement->title }}" 
-                                        class="w-full h-full object-cover">
-                                @else
-                                    <div class="w-full h-full bg-gradient-to-br from-orange-200 to-orange-300 flex items-center justify-center">
-                                        <svg class="w-16 h-16 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                                        </svg>
-                                    </div>
-                                @endif
-                                
-                                <!-- Price Badge -->
-                                <div class="absolute top-4 right-4 bg-white rounded-lg px-3 py-1 shadow-lg">
-                                    <span class="text-lg font-bold text-orange-600">{{ number_format($announcement->price_per_night) }}</span>
-                                    <span class="text-sm text-gray-600">MAD/night</span>
-                                </div>
-
-                                <!-- Room Type Badge -->
-                                <div class="absolute top-4 left-4 bg-orange-600 text-white rounded-lg px-3 py-1 text-sm font-medium">
-                                    {{ $announcement->room_type_display }}
-                                </div>
-                            </div>
-
-                            <!-- Content -->
-                            <div class="p-6">
-                                <div class="flex items-start justify-between mb-2">
-                                    <h3 class="text-lg font-semibold text-gray-900 line-clamp-2">{{ $announcement->title }}</h3>
-                                </div>
-                                
-                                <div class="flex items-center text-sm text-gray-600 mb-2">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
-                                    <span>{{ $announcement->city }}</span>
-                                    <span class="mx-2">•</span>
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                                    </svg>
-                                    <span>Up to {{ $announcement->max_guests }} guests</span>
-                                </div>
-
-                                <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ $announcement->description }}</p>
-
-                                <!-- Host Info -->
-                                <div class="flex items-center mb-4 pb-4 border-b border-gray-200">
-                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center text-white text-sm font-bold mr-3">
-                                        @if($announcement->host->profile_picture)
-                                            <img src="{{ asset('storage/' . $announcement->host->profile_picture) }}" 
-                                                alt="{{ $announcement->host->first_name }}" 
-                                                class="w-10 h-10 rounded-full object-cover">
-                                        @else
-                                            {{ strtoupper(substr($announcement->host->first_name ?? $announcement->host->name, 0, 1)) }}
-                                        @endif
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">{{ $announcement->host->first_name ?? $announcement->host->name }}</p>
-                                        <p class="text-xs text-gray-600">Host Family</p>
-                                    </div>
-                                </div>
-
-                                <!-- Languages -->
-                                <div class="mb-4">
-                                    <div class="flex flex-wrap gap-1">
-                                        @foreach(array_slice($announcement->languages, 0, 3) as $language)
-                                            <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">{{ $language }}</span>
-                                        @endforeach
-                                        @if(count($announcement->languages) > 3)
-                                            <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">+{{ count($announcement->languages) - 3 }} more</span>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                <!-- Action Button -->
-                                <a href="{{ route('listings.show', $announcement) }}" 
-                                    class="w-full btn-moroccan text-white py-3 rounded-lg font-medium text-center block transition-colors duration-300">
-                                    View Details & Book
-                                </a>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-
-                    <!-- Pagination -->
-                    @if($announcements->hasPages())
-                        <div class="mt-12 flex justify-center">
-                            {{ $announcements->appends(request()->query())->links() }}
-                        </div>
-                    @endif
-
-                @else
-                    <!-- No Results -->
-                    <div class="text-center py-16">
-                        <svg class="w-24 h-24 mx-auto text-gray-300 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                        </svg>
-                        <h3 class="text-2xl font-semibold text-gray-900 mb-4">No host families found</h3>
-                        <p class="text-gray-600 mb-6">Try adjusting your filters or search criteria to find more results.</p>
-                        <a href="{{ route('listings.index') }}" class="btn-moroccan text-white px-6 py-3 rounded-lg font-medium inline-block">
-                            Clear All Filters
-                        </a>
-                    </div>
-                @endif
-            </div>
-        </div>
-    </div>
+    <!-- CTA -->
     <footer class="bg-gray-900 text-white py-10 relative overflow-hidden">
         <!-- Decorative Background Pattern -->
         <div class="absolute inset-0 opacity-5">
@@ -602,63 +539,35 @@
             </div>
         </div>
     </footer>
-
-    @vite('resources/js/app.js')
     <script>
-        function searchListings() {
-            const searchInput = document.getElementById('search-input');
-            const searchValue = searchInput.value.trim();
-            
-            const url = new URL(window.location.href);
-            if (searchValue) {
-                url.searchParams.set('city', searchValue);
-            } else {
-                url.searchParams.delete('city');
-            }
-            
-            window.location.href = url.toString();
-        }
-
-        // Allow enter key to trigger search
-        document.getElementById('search-input').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                searchListings();
-            }
-        });
-
-        // Auto-submit filter form when options change
-        document.getElementById('filter-form').addEventListener('change', function() {
-            this.submit();
-        });
         // Toggle user dropdown menu
         function toggleUserMenu() {
             const userMenu = document.getElementById('user-menu');
             const menuArrow = document.getElementById('menu-arrow');
-            
+
             if (userMenu) {
                 userMenu.classList.toggle('hidden');
-                
+
                 // Toggle arrow rotation
                 if (userMenu.classList.contains('hidden')) {
                     menuArrow.classList.remove('rotate-180');
                 } else {
                     menuArrow.classList.add('rotate-180');
-                    
+
                     // Force reflow to ensure the menu is visible and properly sized
                     void userMenu.offsetWidth;
-                    
+
                     // Ensure the menu is properly positioned and visible
                     const menuRect = userMenu.getBoundingClientRect();
                     const viewportWidth = window.innerWidth;
-                    
+
                     // If menu is going off-screen, adjust position
                     if (menuRect.right > viewportWidth) {
                         userMenu.style.left = 'auto';
                         userMenu.style.right = '0';
                     }
                 }
-                
+
                 // Close mobile menu if open
                 const mobileMenu = document.getElementById('mobile-menu');
                 if (mobileMenu) mobileMenu.classList.add('hidden');
@@ -671,13 +580,13 @@
             if (mobileMenu) {
                 mobileMenu.classList.toggle('hidden');
             }
-            
+
             // Close user dropdown if open
             const userMenu = document.getElementById('user-menu');
             if (userMenu) {
                 userMenu.classList.add('hidden');
             }
-            
+
             // Reset arrow rotation
             const menuArrow = document.getElementById('menu-arrow');
             if (menuArrow) {
@@ -690,7 +599,7 @@
             const userMenu = document.getElementById('user-menu');
             const menuButton = event.target.closest('[onclick="toggleUserMenu()"]');
             const menuArrow = document.getElementById('menu-arrow');
-            
+
             if (userMenu && !menuButton && !userMenu.contains(event.target)) {
                 userMenu.classList.add('hidden');
                 // Reset arrow rotation
@@ -705,14 +614,14 @@
             if (event.key === 'Escape') {
                 const userMenu = document.getElementById('user-menu');
                 const menuArrow = document.getElementById('menu-arrow');
-                
+
                 if (userMenu) {
                     userMenu.classList.add('hidden');
                 }
                 if (menuArrow) {
                     menuArrow.classList.remove('rotate-180');
                 }
-                
+
                 // Also close mobile menu if open
                 const mobileMenu = document.getElementById('mobile-menu');
                 if (mobileMenu) {
@@ -723,7 +632,7 @@
 
         // Smooth scrolling for navigation links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
+            anchor.addEventListener('click', function(e) {
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
@@ -737,20 +646,6 @@
             });
         });
 
-        // Handle sort dropdown change
-        document.getElementById('sort-select').addEventListener('change', function() {
-            const url = new URL(window.location.href);
-            const sortValue = this.value;
-            
-            if (sortValue) {
-                url.searchParams.set('sort', sortValue);
-            } else {
-                url.searchParams.delete('sort');
-            }
-            
-            window.location.href = url.toString();
-        });
-
         // Navigation background on scroll
         window.addEventListener('scroll', function() {
             const nav = document.querySelector('nav');
@@ -762,6 +657,15 @@
                 nav.classList.remove('bg-white/98');
             }
         });
+
+        // Scroll to top function
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
     </script>
-</body>
-</html>
+
+   
+@endsection

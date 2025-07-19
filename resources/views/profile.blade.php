@@ -195,7 +195,9 @@
                 <div class="hidden md:flex items-center space-x-6">
                     <a href="{{ route('welcome') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Home</a>
                     <a href="{{ route('listings.index') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Host Families</a>
-                    <a href="{{ route('profile') }}" class="text-orange-600 font-medium transition-colors duration-300">My Profile</a>
+                    <a href="{{ route('our-book') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Our Book</a>
+                    <a href="{{route('about')}}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">About</a>
+                    <a href="{{ route('contact') }}" class="text-gray-700 hover:text-orange-600 transition-colors duration-300">Contact</a>
                     
                     @if(Auth::user()->isHost())
                         <a href="{{ route('host.dashboard') }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium">
@@ -779,7 +781,7 @@
 
                     <!-- Edit Mode -->
                     <div id="edit-mode" class="p-8 fade-transition hidden">
-                        <form id="profile-form" enctype="multipart/form-data">
+<form id="profile-form" action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="grid md:grid-cols-2 gap-6">
                                 <div>
